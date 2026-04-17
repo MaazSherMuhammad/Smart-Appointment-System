@@ -56,6 +56,3 @@ cd frontend
 # Add your specific frontend install/run commands here
 🤝 Contributing
 Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated. Please read the CONTRIBUTING.md file for details on our code of conduct and the process for submitting pull requests.
-📝 License
-Distributed under the MIT License. See LICENSE for more information.
-
