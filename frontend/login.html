@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - AppointEase</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="icon-wrapper">
+                    <i class="fas fa-calendar-check icon"></i>
+                </div>
+                <h2>Welcome Back! 👋</h2>
+                <p>Login to access your AppointEase account</p>
+            </div>
+            
+            <form id="loginForm">
+                <!-- Email Field with Icon -->
+                <div class="form-group input-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                </div>
+                
+                <!-- Password Field with Toggle -->
+                <div class="form-group input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
+                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
+                        <i class="far fa-eye"></i>
+                    </button>
+                </div>
+                
+                <!-- Role Selection -->
+                <div class="form-group">
+                    <label class="form-label">Login As</label>
+                    <select id="role" class="form-control">
+                        <option value="patient">👤 Patient</option>
+                        <option value="doctor">🩺 Doctor/Provider</option>
+                        <option value="admin">⚙️ Administrator</option>
+                    </select>
+                </div>
+                
+                <!-- Remember Me & Forgot Password -->
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
+                        <input type="checkbox" style="accent-color: var(--primary); width: 16px; height: 16px;">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" style="color: var(--primary); font-size: 0.85rem; text-decoration: none;" onclick="showToast('Reset link sent!', 'info'); return false;">Forgot Password?</a>
+                </div>
+                
+                <button type="submit" class="auth-btn">
+                    <i class="fas fa-arrow-right"></i> Sign In
+                </button>
+            </form>
+            
+            <div class="auth-divider">or continue with</div>
+            
+            <div class="social-login">
+                <button class="social-btn google" onclick="showToast('Google login coming soon', 'info')">
+                    <i class="fab fa-google"></i> Google
+                </button>
+                
+            </div>
+            
+            <div class="auth-link">
+                Don't have an account? <a href="register.html">Create Account →</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script>
+        // Storage Utilities
+        const Storage = {
+            save(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
+            get(key) { const data = localStorage.getItem(key); return data ? JSON.parse(data) : null; },
+            remove(key) { localStorage.removeItem(key); }
+        };
+
+        function showToast(message, type) {
+            const container = document.getElementById('toastContainer');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type || 'info'}`;
+            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle';
+            toast.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span>`;
+            container.appendChild(toast);
+            setTimeout(() => toast.remove(), 3000);
+        }
+
+        function togglePassword(fieldId) {
+            const field = document.getElementById(fieldId);
+            const btn = field.nextElementSibling;
+            if (field.type === 'password') {
+                field.type = 'text';
+                btn.innerHTML = '<i class="far fa-eye-slash"></i>';
+            } else {
+                field.type = 'password';
+                btn.innerHTML = '<i class="far fa-eye"></i>';
+            }
+        }
+
+        function login(email, password, role) {
+            const users = Storage.get('users') || [];
+            const credentials = Storage.get('credentials') || {};
+            
+            const user = users.find(u => u.email === email);
+            
+            if (!user) {
+                showToast('User not found. Please register first.', 'error');
+                return false;
+            }
+            
+            if (credentials[email] !== password) {
+                showToast('Invalid password. Please try again.', 'error');
+                return false;
+            }
+            
+            if (user.role !== role) {
+                showToast(`Invalid role. You are registered as ${user.role}`, 'error');
+                return false;
+            }
+            
+            Storage.save('currentUser', user);
+            showToast(`Welcome back, ${user.fullName}! 🎉`, 'success');
+            
+            setTimeout(() => {
+                if (role === 'patient') {
+                    window.location.href = 'dashboard/patient.html';
+                } else if (role === 'doctor') {
+                    window.location.href = 'dashboard/doctor.html';
+                } else if (role === 'admin') {
+                    window.location.href = 'dashboard/admin.html';
+                }
+            }, 1000);
+            
+            return true;
+        }
+
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const role = document.getElementById('role').value;
+            login(email, password, role);
+        });
+    </script>
+</body>
+</html>
+<!-- login page commit -->
