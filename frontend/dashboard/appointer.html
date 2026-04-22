@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-calendar-check"></i></div>
+                <div><strong>AppointEase</strong><br><small style="color: var(--gray-500);">Appointer Portal</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Main Menu</div>
+                <a href="#" class="active" onclick="return false;"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="../appointments/book.html"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+                <a href="../appointments/history.html"><i class="fas fa-history"></i> Appointment History</a>
+                <div class="nav-section">Categories</div>
+                <a href="../appointments/healthcare.html"><i class="fas fa-hospital-user"></i> Healthcare</a>
+                <a href="../appointments/business.html"><i class="fas fa-briefcase"></i> Business</a>
+                <a href="../appointments/educational.html"><i class="fas fa-graduation-cap"></i> Educational</a>
+                <a href="../appointments/personal.html"><i class="fas fa-spa"></i> Personal Services</a>
+                <a href="../appointments/government.html"><i class="fas fa-landmark"></i> Government</a>
+                <a href="../appointments/technical.html"><i class="fas fa-tools"></i> Technical/Repair</a>
+
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="logout()">
+                    <div class="user-avatar user-initials">JD</div>
+                    <div>
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role" style="font-size: 0.7rem; color: var(--gray-500);">Appointer</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1>User Dashboard</h1>
+                    <p>Welcome back, <span class="user-name">John Doe</span>! Here's your appointment overview.</p>
+                </div>
+                <div class="top-actions">
+                    <button class="notif-btn" onclick="showToast('No new notifications', 'info')">
+                        <i class="far fa-bell"></i>
+                        <span class="notif-badge"></span>
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-info"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-value" id="upcomingCount">0</div>
+                        <div class="stat-label">Active Bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-success"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-value" id="completedCount">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-danger"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-value" id="cancelledCount">0</div>
+                        <div class="stat-label">Cancelled</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions -->
+                <div class="quick-actions">
+                    <div class="action-card" onclick="location.href='../appointments/book.html'">
+                        <i class="fas fa-calendar-plus" style="color: #3B82F6;"></i>
+                        <span>Book New Appointment</span>
+                    </div>
+                    <div class="action-card" onclick="location.href='../appointments/history.html'">
+                        <i class="fas fa-history" style="color: #8B5CF6;"></i>
+                        <span>View History</span>
+                    </div>
+                </div>
+
+
+
+                <!-- Category Distribution -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-chart-pie"></i> Appointments by Category</span>
+                    </div>
+                    <div class="card-body" id="categoryStats">
+                        <!-- Dynamic content -->
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/appointment.js"></script>
+    <script src="../js/dashboard.js"></script>
+    <script>
+        function loadCategoryStats() {
+            const container = document.getElementById('categoryStats');
+            if (!container) return;
+            
+            const allAppointments = AppointmentManager.getUserAppointments();
+            const categories = ['Healthcare', 'Business', 'Educational', 'Personal Services', 'Government', 'Technical/Repair'];
+            
+            if (allAppointments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No appointments booked yet</p><a href="../appointments/book.html" class="btn btn-primary btn-sm">Book Your First Appointment</a></div>';
+                return;
+            }
+            
+            let html = '';
+            categories.forEach(cat => {
+                const catApts = allAppointments.filter(a => a.category === cat);
+                if (catApts.length > 0) {
+                    html += `
+                        <div class="category-group" style="margin-bottom: 20px;">
+                            <h4 style="display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.9rem; color: var(--gray-600); border-bottom: 1px solid var(--gray-200); padding-bottom: 8px;">
+                                <span>${getCategoryIcon(cat)} ${cat}</span>
+                                <span class="badge">${catApts.length}</span>
+                            </h4>
+                            <div class="category-apt-list">
+                                ${catApts.map(apt => `
+                                    <div class="appointment-item-sm" style="display: flex; justify-content: space-between; align-items: center; padding: 10px; background: var(--gray-50); border-radius: 8px; margin-bottom: 8px; border: 1px solid var(--gray-100);">
+                                        <div style="flex: 1;">
+                                            <div style="display: flex; align-items: center; gap: 8px;">
+                                                <div style="font-weight: 600; font-size: 0.85rem;">${apt.service}</div>
+                                                <span class="status-badge status-${apt.status}" style="font-size: 0.65rem; padding: 2px 6px;">${apt.status}</span>
+                                            </div>
+                                            <div style="font-size: 0.75rem; color: var(--gray-500);">${formatDate(apt.date)} • ${apt.time}</div>
+                                        </div>
+                                        <button class="btn-icon btn-danger-soft" onclick="deleteAppointmentHandler(${apt.id})" title="Delete Appointment" style="padding: 6px; border-radius: 6px; border: none; background: rgba(239, 68, 68, 0.1); color: #EF4444; cursor: pointer;">
+                                            <i class="fas fa-trash-alt"></i>
+                                        </button>
+                                    </div>
+                                `).join('')}
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            
+            container.innerHTML = html || '<div class="empty-state"><p>No active appointments across categories</p></div>';
+        }
+
+        function deleteAppointmentHandler(id) {
+            if (confirm('Are you sure you want to permanently delete this appointment from your records?')) {
+                if (AppointmentManager.deleteAppointmentGlobal(id)) {
+                    loadDashboardStats();
+                    loadCategoryStats();
+                }
+            }
+        }
+        
+        // Override load functions to include category stats
+        const originalLoadStats = loadDashboardStats;
+        loadDashboardStats = function() {
+            originalLoadStats();
+            loadCategoryStats();
+        };
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.requireAuth()) return;
+            
+            const user = Auth.getCurrentUser();
+            if (user) {
+                document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
+                document.querySelectorAll('.user-initials').forEach(el => {
+                    el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+                });
+            }
+            
+            loadDashboardStats();
+            loadCategoryStats();
+        });
+    </script>
+</body>
+</html>
