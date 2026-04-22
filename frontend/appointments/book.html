@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Select Category - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .category-selection-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 30px;
+            margin-top: 40px;
+        }
+
+        .selection-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(10px);
+            border-radius: var(--radius-xl);
+            padding: 40px 32px;
+            text-align: center;
+            transition: var(--transition-bounce);
+            cursor: pointer;
+            border: 1px solid var(--border-color);
+            box-shadow: var(--shadow-md);
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .selection-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: var(--category-gradient, var(--primary-gradient));
+            opacity: 0;
+            transition: var(--transition);
+        }
+
+        .selection-card:hover {
+            transform: translateY(-12px);
+            box-shadow: var(--shadow-2xl);
+            border-color: transparent;
+        }
+
+        .selection-card:hover::before {
+            opacity: 1;
+        }
+
+        .selection-icon-wrapper {
+            width: 90px;
+            height: 90px;
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            margin: 0 auto 24px;
+            position: relative;
+            transition: var(--transition-bounce);
+            background: var(--category-light, rgba(124, 58, 237, 0.1));
+            color: var(--category-primary, var(--primary));
+        }
+
+        .selection-card:hover .selection-icon-wrapper {
+            transform: scale(1.1) rotate(5deg);
+            background: var(--category-gradient, var(--primary-gradient));
+            color: white;
+            box-shadow: 0 15px 30px -5px var(--category-glow, var(--primary-glow));
+        }
+
+        .selection-card h3 {
+            font-size: 1.4rem;
+            margin-bottom: 12px;
+            color: var(--text-primary);
+            transition: var(--transition);
+        }
+
+        .selection-card p {
+            font-size: 0.95rem;
+            color: var(--text-secondary);
+            line-height: 1.5;
+        }
+
+        /* Specific Category Themes */
+        .card-healthcare {
+            --category-primary: #10B981;
+            --category-light: rgba(16, 185, 129, 0.1);
+            --category-gradient: linear-gradient(135deg, #10B981, #059669);
+            --category-glow: rgba(16, 185, 129, 0.4);
+        }
+        .card-business {
+            --category-primary: #3B82F6;
+            --category-light: rgba(59, 130, 246, 0.1);
+            --category-gradient: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            --category-glow: rgba(59, 130, 246, 0.4);
+        }
+        .card-educational {
+            --category-primary: #F59E0B;
+            --category-light: rgba(245, 158, 11, 0.1);
+            --category-gradient: linear-gradient(135deg, #F59E0B, #D97706);
+            --category-glow: rgba(245, 158, 11, 0.4);
+        }
+        .card-personal {
+            --category-primary: #EC4899;
+            --category-light: rgba(236, 72, 153, 0.1);
+            --category-gradient: linear-gradient(135deg, #EC4899, #BE185D);
+            --category-glow: rgba(236, 72, 153, 0.4);
+        }
+        .card-government {
+            --category-primary: #6366F1;
+            --category-light: rgba(99, 102, 241, 0.1);
+            --category-gradient: linear-gradient(135deg, #6366F1, #4338CA);
+            --category-glow: rgba(99, 102, 241, 0.4);
+        }
+        .card-technical {
+            --category-primary: #8B5CF6;
+            --category-light: rgba(139, 92, 246, 0.1);
+            --category-gradient: linear-gradient(135deg, #8B5CF6, #6D28D9);
+            --category-glow: rgba(139, 92, 246, 0.4);
+        }
+
+        @media (max-width: 992px) {
+            .category-selection-grid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 576px) {
+            .category-selection-grid { 
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            .selection-card { padding: 30px 24px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-calendar-check"></i></div>
+                <div><strong>AppointEase</strong><br><small style="color: var(--gray-500);">Booking Hub</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Menu</div>
+                <a href="../dashboard/appointer.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="book.html" class="active"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+                <a href="history.html"><i class="fas fa-history"></i> Appointment History</a>
+                
+                <div class="nav-section">Categories</div>
+                <a href="healthcare.html"><i class="fas fa-hospital-user"></i> Healthcare</a>
+                <a href="business.html"><i class="fas fa-briefcase"></i> Business</a>
+                <a href="educational.html"><i class="fas fa-graduation-cap"></i> Educational</a>
+                <a href="personal.html"><i class="fas fa-spa"></i> Personal Services</a>
+                <a href="government.html"><i class="fas fa-landmark"></i> Government</a>
+                <a href="technical.html"><i class="fas fa-tools"></i> Technical/Repair</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="Auth.logout()">
+                    <div class="user-avatar user-initials">JD</div>
+                    <div>
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role" style="font-size: 0.7rem;">Appointer</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1>Select <span class="gradient-text">Category</span></h1>
+                    <p>What kind of appointment would you like to book today?</p>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="category-selection-grid">
+                    <div class="selection-card card-healthcare" onclick="location.href='healthcare.html'">
+                        <div class="selection-icon-wrapper">
+                            <i class="fas fa-hospital-user"></i>
+                        </div>
+                        <h3>Healthcare</h3>
+                        <p>Medical consultations, dental, and specialized healthcare services</p>
+                    </div>
+                    <div class="selection-card card-business" onclick="location.href='business.html'">
+                        <div class="selection-icon-wrapper">
+                            <i class="fas fa-briefcase"></i>
+                        </div>
+                        <h3>Business</h3>
+                        <p>Corporate meetings, interviews, and professional consultations</p>
+                    </div>
+                    <div class="selection-card card-educational" onclick="location.href='educational.html'">
+                        <div class="selection-icon-wrapper">
+                            <i class="fas fa-graduation-cap"></i>
+                        </div>
+                        <h3>Educational</h3>
+                        <p>Academic advising, private tutorials, and learning sessions</p>
+                    </div>
+                    <div class="selection-card card-personal" onclick="location.href='personal.html'">
+                        <div class="selection-icon-wrapper">
+                            <i class="fas fa-spa"></i>
+                        </div>
+                        <h3>Personal</h3>
+                        <p>Salon, spa treatments, and personal lifestyle appointments</p>
+                    </div>
+                    <div class="selection-card card-government" onclick="location.href='government.html'">
+                        <div class="selection-icon-wrapper">
+                            <i class="fas fa-landmark"></i>
+                        </div>
+                        <h3>Government</h3>
+                        <p>Official department visits and public service appointments</p>
+                    </div>
+                    <div class="selection-card card-technical" onclick="location.href='technical.html'">
+                        <div class="selection-icon-wrapper">
+                            <i class="fas fa-tools"></i>
+                        </div>
+                        <h3>Technical</h3>
+                        <p>Maintenance, technical repairs, and IT support services</p>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.requireAuth()) return;
+            const user = Auth.getCurrentUser();
+            if (user) {
+                document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
+                document.querySelectorAll('.user-initials').forEach(el => {
+                    el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+                });
+            }
+        });
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+    </script>
+</body>
+</html>
+<!-- Book-Page -->
