@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Appointment History - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-calendar-check"></i></div>
+                <div><strong>AppointEase</strong><br><small style="color: var(--gray-500);">History</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Menu</div>
+                <a href="../dashboard/appointer.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="book.html"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+                <a href="#" class="active"><i class="fas fa-history"></i> Appointment History</a>
+                
+                <div class="nav-section">Categories</div>
+                <a href="healthcare.html"><i class="fas fa-hospital-user"></i> Healthcare</a>
+                <a href="business.html"><i class="fas fa-briefcase"></i> Business</a>
+                <a href="educational.html"><i class="fas fa-graduation-cap"></i> Educational</a>
+                <a href="personal.html"><i class="fas fa-spa"></i> Personal Services</a>
+                <a href="government.html"><i class="fas fa-landmark"></i> Government</a>
+                <a href="technical.html"><i class="fas fa-tools"></i> Technical/Repair</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="Auth.logout()">
+                    <div class="user-avatar user-initials">JD</div>
+                    <div>
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role" style="font-size: 0.7rem;">Appointer</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1>Appointment History</h1>
+                    <p>View all your past and upcoming appointments</p>
+                </div>
+            </div>
+
+            <div class="content-area">
+            <div class="content-area">
+                <!-- Filter Buttons -->
+                <div class="stats-grid" style="grid-template-columns: repeat(3, 1fr); margin-bottom: 24px;">
+                    <div class="stat-card active" id="btn-total" onclick="filterHistory('total')" style="cursor: pointer; border: 2px solid transparent; transition: all 0.3s;">
+                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-value" id="count-total">0</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
+                    <div class="stat-card" id="btn-completed" onclick="filterHistory('completed')" style="cursor: pointer; border: 2px solid transparent; transition: all 0.3s;">
+                        <div class="stat-icon stat-icon-success"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-value" id="count-completed">0</div>
+                        <div class="stat-label">Completed Appointments</div>
+                    </div>
+                    <div class="stat-card" id="btn-cancelled" onclick="filterHistory('cancelled')" style="cursor: pointer; border: 2px solid transparent; transition: all 0.3s;">
+                        <div class="stat-icon stat-icon-danger"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-value" id="count-cancelled">0</div>
+                        <div class="stat-label">Cancelled Appointments</div>
+                    </div>
+                </div>
+
+                <!-- History Table -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title" id="tableTitle"><i class="fas fa-history"></i> All Appointments</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Category</th>
+                                        <th>Service</th>
+                                        <th>Provider</th>
+                                        <th>Date & Time</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="historyTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                            <div id="noDataMessage" class="empty-state" style="display: none; padding: 40px; text-align: center;">
+                                <i class="fas fa-calendar-times" style="font-size: 3rem; color: var(--gray-300); margin-bottom: 15px;"></i>
+                                <p>No appointments found for this filter.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/appointment.js"></script>
+    <script>
+        let currentFilter = 'total';
+
+        function filterHistory(filter) {
+            currentFilter = filter;
+            
+            // Update active state of buttons
+            document.querySelectorAll('.stat-card').forEach(card => {
+                card.style.borderColor = 'transparent';
+                card.style.transform = 'translateY(0)';
+                card.style.boxShadow = 'var(--shadow-sm)';
+            });
+            
+            const activeBtn = document.getElementById(`btn-${filter}`);
+            if (activeBtn) {
+                activeBtn.style.borderColor = 'var(--primary)';
+                activeBtn.style.transform = 'translateY(-5px)';
+                activeBtn.style.boxShadow = 'var(--shadow-lg)';
+            }
+
+            // Update title
+            const titleMap = {
+                total: 'Total Appointments',
+                completed: 'Completed Appointments',
+                cancelled: 'Cancelled Appointments'
+            };
+            document.getElementById('tableTitle').innerHTML = `<i class="fas fa-history"></i> ${titleMap[filter]}`;
+
+            renderHistoryTable();
+        }
+
+        function renderHistoryTable() {
+            const stats = AppointmentManager.getStats();
+            document.getElementById('count-total').textContent = stats.total;
+            document.getElementById('count-completed').textContent = stats.completed;
+            document.getElementById('count-cancelled').textContent = stats.cancelled;
+
+            const all = AppointmentManager.getUserAppointments();
+            const now = new Date();
+            
+            let filtered = [];
+            if (currentFilter === 'total') {
+                filtered = all;
+            } else if (currentFilter === 'completed') {
+                filtered = all.filter(a => a.status === 'completed' || (new Date(`${a.date}T${a.time}`) < now && a.status !== 'cancelled'));
+            } else if (currentFilter === 'cancelled') {
+                filtered = all.filter(a => a.status === 'cancelled');
+            }
+
+            // Sort by date descending
+            filtered.sort((a, b) => new Date(`${b.date}T${a.time}`) - new Date(`${a.date}T${b.time}`));
+
+            const tbody = document.getElementById('historyTableBody');
+            const noData = document.getElementById('noDataMessage');
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                noData.style.display = 'block';
+                return;
+            }
+
+            noData.style.display = 'none';
+            tbody.innerHTML = filtered.map(apt => `
+                <tr>
+                    <td><span class="category-badge-sm" style="background: ${getCategoryColor(apt.category)}20; color: ${getCategoryColor(apt.category)}">${getCategoryIcon(apt.category)} ${apt.category}</span></td>
+                    <td style="font-weight: 600;">${apt.service}</td>
+                    <td>${apt.provider}</td>
+                    <td>
+                        <div style="font-weight: 600; color: var(--primary);">${formatDate(apt.date)}</div>
+                        <div style="font-size: 0.75rem; color: var(--gray-500);">${apt.time}</div>
+                    </td>
+                    <td><span class="status-badge status-${apt.status}">${apt.status}</span></td>
+                    <td>
+                        <button class="btn-icon btn-danger-soft" onclick="deleteHistoryApt(${apt.id})" title="Delete Permanent" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: rgba(239, 68, 68, 0.1); color: #EF4444; cursor: pointer;">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function deleteHistoryApt(id) {
+            if (confirm('Are you sure you want to permanently delete this appointment from your records?')) {
+                if (AppointmentManager.deleteAppointmentGlobal(id)) {
+                    renderHistoryTable();
+                }
+            }
+        }
+        
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+        
+        function getCategoryColor(category) {
+            const colors = {
+                'Healthcare': '#3B82F6',
+                'Business': '#10B981',
+                'Educational': '#F59E0B',
+                'Personal Services': '#EC4899',
+                'Government': '#6366F1',
+                'Technical/Repair': '#8B5CF6'
+            };
+            return colors[category] || '#3B82F6';
+        }
+        
+        function getCategoryIcon(category) {
+            const icons = {
+                'Healthcare': '🏥',
+                'Business': '💼',
+                'Educational': '🎓',
+                'Personal Services': '✨',
+                'Government': '🏢',
+                'Technical/Repair': '🔧'
+            };
+            return icons[category] || '📅';
+        }
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.requireAuth()) return;
+            const user = Auth.getCurrentUser();
+            if (user) {
+                document.querySelectorAll('.user-initials').forEach(el => {
+                    el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+                });
+                document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
+            }
+            filterHistory('total');
+        });
+    </script>
+</body>
+</html>
