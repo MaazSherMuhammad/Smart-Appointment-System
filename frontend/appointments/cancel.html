@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cancel Appointment - AppointEase</title>
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/appointment.js"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentId = parseInt(urlParams.get('id'));
+        
+        if (appointmentId) {
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                AppointmentManager.cancelAppointment(appointmentId);
+                showToast('Appointment cancelled', 'warning');
+                setTimeout(() => {
+                    window.location.href = 'history.html';
+                }, 1000);
+            } else {
+                window.location.href = 'history.html';
+            }
+        } else {
+            window.location.href = 'history.html';
+        }
+    </script>
+</head>
+<body>
+    <p>Redirecting...</p>
+</body>
+</html>
