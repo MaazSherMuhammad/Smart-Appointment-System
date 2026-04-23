@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reschedule Appointment - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-calendar-check"></i></div>
+                <div><strong>AppointEase</strong><br><small>Reschedule</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../dashboard/appointer.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="book.html"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+                <a href="history.html"><i class="fas fa-history"></i> My History</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="location.href='../login.html'">
+                    <div class="user-avatar user-initials">JD</div>
+                    <div>
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role">Appointer</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1>Reschedule Appointment</h1>
+                    <p>Select a new date and time for your appointment</p>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-calendar-alt"></i> Select New Date & Time</span>
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                            <label class="form-label">Select New Date</label>
+                            <input type="date" id="newDate" class="form-control" min="">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label class="form-label">Select New Time Slot</label>
+                            <div id="timeSlots" class="time-slots"></div>
+                        </div>
+                        
+                        <button class="btn btn-primary btn-full" onclick="confirmReschedule()">
+                            <i class="fas fa-check-circle"></i> Confirm Reschedule
+                        </button>
+                        <button class="btn btn-secondary btn-full" style="margin-top: 12px;" onclick="location.href='history.html'">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/validation.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/appointment.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const appointmentId = parseInt(urlParams.get('id'));
+        let appointment = null;
+        let selectedTime = null;
+        
+        const timeSlots = ['09:00 AM', '10:00 AM', '11:00 AM', '12:00 PM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'];
+        
+        function renderTimeSlots() {
+            const container = document.getElementById('timeSlots');
+            container.innerHTML = timeSlots.map(slot => `
+                <div class="time-slot" data-time="${slot}" onclick="selectTimeSlot(this, '${slot}')">${slot}</div>
+            `).join('');
+        }
+        
+        function selectTimeSlot(el, time) {
+            document.querySelectorAll('.time-slot').forEach(slot => slot.classList.remove('selected'));
+            el.classList.add('selected');
+            selectedTime = time;
+        }
+        
+        function confirmReschedule() {
+            const newDate = document.getElementById('newDate').value;
+            
+            if (!newDate) {
+                showToast('Please select a new date', 'error');
+                return;
+            }
+            if (!selectedTime) {
+                showToast('Please select a time slot', 'error');
+                return;
+            }
+            
+            if (AppointmentManager.rescheduleAppointment(appointmentId, newDate, selectedTime)) {
+                setTimeout(() => {
+                    window.location.href = 'history.html';
+                }, 1500);
+            }
+        }
+        
+        // Set min date to tomorrow
+        const tomorrow = new Date();
+        tomorrow.setDate(tomorrow.getDate() + 1);
+        
+        // Initialize Flatpickr
+        flatpickr("#newDate", {
+            minDate: tomorrow.toISOString().split('T')[0],
+            dateFormat: "Y-m-d",
+            position: "below",
+            disableMobile: "true",
+            onReady: function(selectedDates, dateStr, instance) {
+                const footer = document.createElement('div');
+                footer.className = 'flatpickr-footer-actions';
+                footer.innerHTML = `
+                    <button type="button" class="fp-btn fp-btn-clear">Clear</button>
+                    <button type="button" class="fp-btn fp-btn-today">Today</button>
+                `;
+                instance.calendarContainer.appendChild(footer);
+                
+                footer.querySelector('.fp-btn-clear').addEventListener('click', () => {
+                    instance.clear();
+                    instance.close();
+                });
+                
+                footer.querySelector('.fp-btn-today').addEventListener('click', () => {
+                    instance.setDate(new Date());
+                    instance.close();
+                });
+            }
+        });
+        
+        renderTimeSlots();
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.requireAuth()) return;
+            
+            appointment = AppointmentManager.getAppointment(appointmentId);
+            if (!appointment) {
+                showToast('Appointment not found', 'error');
+                setTimeout(() => window.location.href = 'history.html', 1500);
+            }
+        });
+        
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
