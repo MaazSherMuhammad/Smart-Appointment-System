@@ -111,13 +111,6 @@ function showToast(message, type = 'info') {
     const toast = document.createElement('div');
     toast.className = `toast toast-${type}`;
     
-    const icons = {
-        success: '✓',
-        error: '✗',
-        warning: '⚠',
-        info: 'ℹ'
-    };
-    
     toast.innerHTML = `
         <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : type === 'warning' ? 'exclamation-triangle' : 'info-circle'}"></i>
         <span>${message}</span>
@@ -292,23 +285,6 @@ const Categories = {
             'Visa Processing Center'
         ]
     },
-    event: {
-        name: 'Event-Based 🎉',
-        services: [
-            'Wedding Planning',
-            'Photography Session',
-            'Event Booking',
-            'Catering Meeting',
-            'DJ Consultation',
-            'Venue Tour'
-        ],
-        providers: [
-            'Dream Weddings',
-            'Capture Moments Photography',
-            'Elite Events',
-            'Gourmet Catering'
-        ]
-    },
     technical: {
         name: 'Technical/Repair 🔧',
         services: [
@@ -324,23 +300,6 @@ const Categories = {
             'Plumbing Pro',
             'Cool Air AC Services',
             'Tech Support Plus'
-        ]
-    },
-    virtual: {
-        name: 'Virtual/Online 💻',
-        services: [
-            'Zoom Meeting',
-            'Online Consultation',
-            'Remote Interview',
-            'Webinar',
-            'Virtual Class',
-            'Telehealth Session'
-        ],
-        providers: [
-            'Zoom Professional',
-            'Online Doctors Hub',
-            'Remote Recruiters',
-            'Webinar Masters'
         ]
     }
 };
