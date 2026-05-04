@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Government Admin - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .stat-card.government:hover .stat-icon { color: #6366F1; }
+        .btn-admin { background: linear-gradient(135deg, #6366F1, #4338CA); color: white; }
+        .list-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 15px;
+            background: var(--bg-primary);
+            border-radius: var(--radius);
+            margin-bottom: 10px;
+            border: 1px solid var(--border-color);
+        }
+        .list-item:hover { transform: translateX(5px); border-color: #6366F1; }
+        .add-form { display: flex; gap: 10px; margin-top: 15px; }
+        .add-form input { flex: 1; padding: 12px 15px; border: 2px solid var(--border-color); border-radius: var(--radius); background: var(--bg-primary); }
+        .add-form input:focus { outline: none; border-color: #6366F1; }
+        .services-providers-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-landmark"></i></div>
+                <div><strong>AppointEase</strong><br><small>Government Admin</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Management</div>
+                <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="#" onclick="showSection('appointments')"><i class="fas fa-calendar-alt"></i> Appointments</a>
+                <a href="#" onclick="showSection('services')"><i class="fas fa-building"></i> Services & Offices</a>
+                <div class="nav-section">Quick Links</div>
+                <a href="../appointments/government.html"><i class="fas fa-plus-circle"></i> Book Appointment (Test)</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="Auth.logout()">
+                    <div class="user-avatar user-initials">GA</div>
+                    <div>
+                        <div class="user-name">Govt Admin</div>
+                        <div class="user-role">Government Admin</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt"></i>
+                </div>
+            </div>
+        </aside>
+
+        <main class="main-content">
+            <div class="top-bar" style="background: linear-gradient(135deg, #6366F1, #4338CA); color: white;">
+                <button class="menu-toggle" onclick="toggleSidebar()" style="color: white;"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1 style="color: white;">Government Admin Dashboard</h1>
+                    <p style="color: rgba(255,255,255,0.9);">Manage official department appointments and services</p>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="stats-grid">
+                    <div class="stat-card government">
+                        <div class="stat-icon"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-value" id="totalApts">0</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
+                    <div class="stat-card government">
+                        <div class="stat-icon stat-icon-success"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-value" id="completedApts">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card government">
+                        <div class="stat-icon stat-icon-warning"><i class="fas fa-spinner"></i></div>
+                        <div class="stat-value" id="activeApts">0</div>
+                        <div class="stat-label">Active</div>
+                    </div>
+                    <div class="stat-card government">
+                        <div class="stat-icon stat-icon-danger"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-value" id="cancelledApts">0</div>
+                        <div class="stat-label">Cancelled</div>
+                    </div>
+                </div>
+
+                <div id="dashboardSection">
+                    <div class="card">
+                        <div class="card-header"><span class="card-title"><i class="fas fa-chart-line"></i> Quick Overview</span></div>
+                        <div class="card-body">
+                            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; text-align: center;">
+                                <div><div style="font-size: 2rem; font-weight: 800; color: #6366F1;" id="uniqueCitizens">0</div><div style="font-size: 0.8rem;">Unique Citizens</div></div>
+                                <div><div style="font-size: 2rem; font-weight: 800; color: #10B981;" id="completionRate">0%</div><div style="font-size: 0.8rem;">Completion Rate</div></div>
+                                <div><div style="font-size: 1.2rem; font-weight: 800; color: #F59E0B;" id="mostPopular">-</div><div style="font-size: 0.8rem;">Most Popular Service</div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card">
+                        <div class="card-header"><span class="card-title"><i class="fas fa-clock"></i> Recent Appointments</span><button class="btn btn-sm btn-outline" onclick="showSection('appointments')">View All →</button></div>
+                        <div class="card-body"><div class="table-responsive"><table class="data-table"><thead><tr><th>Citizen</th><th>Service</th><th>Office</th><th>Date</th><th>Status</th></tr></thead><tbody id="recentTable"></tbody></table></div></div>
+                    </div>
+                </div>
+
+                <div id="appointmentsSection" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas fa-list"></i> All Government Appointments</span>
+                            <div class="filter-pills">
+                                <button class="badge badge-outline active" onclick="filterByStatus('all')">All</button>
+                                <button class="badge badge-outline" onclick="filterByStatus('active')">Active</button>
+                                <button class="badge badge-outline" onclick="filterByStatus('completed')">Completed</button>
+                                <button class="badge badge-outline" onclick="filterByStatus('cancelled')">Cancelled</button>
+                            </div>
+                        </div>
+                        <div class="card-body"><div class="table-responsive"><table class="data-table"><thead><tr><th>Citizen</th><th>Email</th><th>Service</th><th>Office</th><th>Date & Time</th><th>Status</th><th>Actions</th></tr></thead><tbody id="allAppointmentsTable"></tbody></table></div></div>
+                    </div>
+                </div>
+
+                <div id="servicesSection" style="display: none;">
+                    <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-building"></i> Government Services</span></div><div class="card-body"><div id="servicesList"></div><div class="add-form"><input type="text" id="newService" placeholder="New service..."><button class="btn btn-sm btn-admin" onclick="addService()"><i class="fas fa-plus"></i> Add</button></div></div></div>
+                    <div class="card"><div class="card-header"><span class="card-title"><i class="fas fa-building"></i> Government Offices</span></div><div class="card-body"><div id="providersList"></div><div class="add-form"><input type="text" id="newProvider" placeholder="New office..."><button class="btn btn-sm btn-admin" onclick="addProvider()"><i class="fas fa-plus"></i> Add</button></div></div></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/app.bundle.js"></script>
+    <script>
+        let currentStatus = 'all';
+        let categoryAppointments = [];
+
+        function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
+        function showSection(section) {
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('appointmentsSection').style.display = 'none';
+            document.getElementById('servicesSection').style.display = 'none';
+            if (section === 'dashboard') document.getElementById('dashboardSection').style.display = 'block';
+            else if (section === 'appointments') document.getElementById('appointmentsSection').style.display = 'block';
+            else if (section === 'services') document.getElementById('servicesSection').style.display = 'block';
+        }
+
+        function loadCategoryData() {
+            categoryAppointments = AppointmentManager.getAppointmentsByCategoryGlobal('Government');
+            updateStats(); renderAllTables(); loadServicesProviders(); updateInsights();
+        }
+
+        function updateStats() {
+            const total = categoryAppointments.length;
+            const completed = categoryAppointments.filter(a => a.status === 'completed').length;
+            const active = categoryAppointments.filter(a => a.status !== 'completed' && a.status !== 'cancelled').length;
+            const cancelled = categoryAppointments.filter(a => a.status === 'cancelled').length;
+            document.getElementById('totalApts').textContent = total;
+            document.getElementById('completedApts').textContent = completed;
+            document.getElementById('activeApts').textContent = active;
+            document.getElementById('cancelledApts').textContent = cancelled;
+        }
+
+        function updateInsights() {
+            const uniqueCitizens = new Set(categoryAppointments.map(a => a.userId)).size;
+            document.getElementById('uniqueCitizens').textContent = uniqueCitizens;
+            const completed = categoryAppointments.filter(a => a.status === 'completed').length;
+            const rate = categoryAppointments.length > 0 ? Math.round((completed / categoryAppointments.length) * 100) : 0;
+            document.getElementById('completionRate').textContent = rate;
+            const serviceCount = {};
+            categoryAppointments.forEach(a => { serviceCount[a.service] = (serviceCount[a.service] || 0) + 1; });
+            let popular = '-', max = 0;
+            for (const [s, c] of Object.entries(serviceCount)) if (c > max) { max = c; popular = s.length > 20 ? s.substring(0, 17) + '...' : s; }
+            document.getElementById('mostPopular').textContent = popular;
+        }
+
+        function renderAllTables() {
+            const tbody = document.getElementById('recentTable');
+            const recent = categoryAppointments.slice(-5).reverse();
+            tbody.innerHTML = recent.map(apt => `<tr><td><strong>${apt.userName || apt.userFullName || "User"}</strong></td><td>${apt.notes || apt.service || "N/A"}</td><td>${apt.serviceProviderName || apt.provider || "N/A"}</td><td>${apt.appointmentDate || apt.date || ""}</td><td><span class="status-badge status-${apt.status === 'active' ? 'confirmed' : apt.status}">${apt.status}</span></td>`).join('');
+            
+            let filtered = categoryAppointments;
+            if (currentStatus !== 'all') filtered = categoryAppointments.filter(a => currentStatus === 'active' ? (a.status !== 'completed' && a.status !== 'cancelled') : a.status === currentStatus);
+            const allBody = document.getElementById('allAppointmentsTable');
+            allBody.innerHTML = filtered.map(apt => `<tr><td><strong>${apt.userName || apt.userFullName || "User"}</strong></td><td>${apt.userEmail}</td><td>${apt.notes || apt.service || "N/A"}</td><td>${apt.serviceProviderName || apt.provider || "N/A"}</td><td>${apt.appointmentDate || apt.date || ""}<br><small>${apt.appointmentTime ? parseTimeFromBackend(apt.appointmentTime) : (apt.time || "")}</small></td><td><span class="status-badge status-${apt.status === 'active' ? 'confirmed' : apt.status}">${apt.status}</span></td><td><button class="btn-icon-sm" style="background:rgba(16,185,129,0.1);color:#10B981;" onclick="markComplete(${apt.id})"><i class="fas fa-check"></i></button><button class="btn-icon-sm" style="background:rgba(239,68,68,0.1);color:#EF4444;" onclick="deleteAppointment(${apt.id})"><i class="fas fa-trash-alt"></i></button></td></tr>`).join('');
+        }
+
+        function filterByStatus(status) { currentStatus = status; document.querySelectorAll('#appointmentsSection .filter-pills .badge').forEach(btn => { btn.classList.remove('active'); if (btn.textContent.toLowerCase() === status || (status === 'all' && btn.textContent === 'All')) btn.classList.add('active'); }); renderAllTables(); }
+        function markComplete(id) { if (confirm('Mark as completed?')) { AppointmentManager.completeAppointment(id).then(() => { if(typeof loadAppointments === 'function') loadAppointments(); else location.reload(); }); loadCategoryData(); showToast('Completed', 'success'); } }
+        function deleteAppointment(id) { if (confirm('Delete permanently?')) { AppointmentManager.deleteAppointmentGlobal(id); loadCategoryData(); showToast('Deleted', 'info'); } }
+
+        function loadServicesProviders() {
+            if (!Categories.government) Categories.government = { services: ['Passport Office', 'Driving License', 'NADRA/ID Services', 'Visa Appointment', 'Property Registration', 'Court Hearing'], providers: ['Passport Office - Karachi', 'DL Center - Clifton', 'NADRA Mega Center', 'Visa Processing Center'] };
+            document.getElementById('servicesList').innerHTML = Categories.government.services.map(s => `<div class="list-item"><span><i class="fas fa-building" style="color:#6366F1;"></i> ${s}</span><button class="btn-icon-sm" style="background:rgba(239,68,68,0.1);color:#EF4444;" onclick="removeService('${s.replace(/'/g, "\\'")}')"><i class="fas fa-trash-alt"></i></button></div>`).join('');
+            document.getElementById('providersList').innerHTML = Categories.government.providers.map(p => `<div class="list-item"><span><i class="fas fa-building" style="color:#6366F1;"></i> ${p}</span><button class="btn-icon-sm" style="background:rgba(239,68,68,0.1);color:#EF4444;" onclick="removeProvider('${p.replace(/'/g, "\\'")}')"><i class="fas fa-trash-alt"></i></button></div>`).join('');
+        }
+        function addService() { const s = document.getElementById('newService').value.trim(); if(s){ Categories.government.services.push(s); document.getElementById('newService').value=''; loadServicesProviders(); showToast('Service added','success');} }
+        function addProvider() { const p = document.getElementById('newProvider').value.trim(); if(p){ Categories.government.providers.push(p); document.getElementById('newProvider').value=''; loadServicesProviders(); showToast('Office added','success');} }
+        function removeService(s) { if(confirm('Remove?')){ const i = Categories.government.services.indexOf(s); if(i!==-1){ Categories.government.services.splice(i,1); loadServicesProviders(); showToast('Removed','info');} } }
+        function removeProvider(p) { if(confirm('Remove?')){ const i = Categories.government.providers.indexOf(p); if(i!==-1){ Categories.government.providers.splice(i,1); loadServicesProviders(); showToast('Removed','info');} } }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.requireAuth()) return;
+            const user = Auth.getCurrentUser();
+            if (!user || user.role !== 'government_admin') { showToast('Access denied', 'error'); setTimeout(() => window.location.href = '../login.html', 1500); return; }
+            document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
+            document.querySelectorAll('.user-initials').forEach(el => el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase());
+            loadCategoryData();
+        });
+    </script>
+</body>
+</html>
