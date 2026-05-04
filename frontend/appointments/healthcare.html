@@ -127,20 +127,12 @@
         </main>
     </div>
 
-    <script src="../js/validation.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/appointment.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="../js/app.bundle.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            if (!Auth.requireAuth()) return;
-            const user = Auth.getCurrentUser();
-            if (user) {
-                document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
-                document.querySelectorAll('.user-initials').forEach(el => {
-                    el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
-                });
-            }
+            initBookingPage('Healthcare');
+            // Additional init
             const today = new Date().toISOString().split('T')[0];
             
             // Initialize Flatpickr
@@ -171,30 +163,7 @@
             });
         });
 
-        document.getElementById('bookingForm').addEventListener('submit', (e) => {
-            e.preventDefault();
-            const service = document.getElementById('service').value;
-            const provider = document.getElementById('provider').value;
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('timeSlot').value;
-            
-            if (!service || !provider || !date || !time) {
-                showToast('Fields required', 'error');
-                return;
-            }
-            const appointment = {
-                category: 'Healthcare',
-                service: service,
-                provider: provider,
-                date: date,
-                time: time,
-                notes: document.getElementById('notes').value,
-                status: 'confirmed'
-            };
-            if (AppointmentManager.book(appointment)) {
-                setTimeout(() => { window.location.href = 'history.html'; }, 1500);
-            }
-        });
+        document.getElementById('bookingForm').addEventListener('submit', (e) => submitBooking(e, 'Healthcare'));
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
     </script>
