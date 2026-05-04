@@ -136,16 +136,14 @@
         </main>
     </div>
 
-    <script src="../js/validation.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/appointment.js"></script>
+    <script src="../js/app.bundle.js"></script>
     <script>
         function toggleSidebar() {
             document.getElementById('sidebar').classList.toggle('open');
         }
 
         function loadDoctorDashboard() {
-            const stats = AppointmentManager.getGlobalStats();
+            const stats = AppointmentManager.computeStats(await AppointmentManager.getMyAppointments());
             document.getElementById('statsAppointers').textContent = stats.appointers;
             document.getElementById('statsUpcoming').textContent = stats.upcoming;
             document.getElementById('statsCompleted').textContent = stats.completed;
@@ -155,7 +153,7 @@
             const pendingEl = document.getElementById('pendingCount');
             if (pendingEl) pendingEl.textContent = stats.upcoming;
 
-            const recentApts = AppointmentManager.getAllAppointmentsGlobal().slice(0, 5);
+            const recentApts = await AppointmentManager.getMyAppointments().slice(0, 5);
             const tbody = document.getElementById('recentAppointmentsBody');
             const noData = document.getElementById('noDataMessage');
 
@@ -169,14 +167,14 @@
             tbody.innerHTML = recentApts.map(apt => `
                 <tr>
                     <td>
-                        <div style="font-weight: 700; color: var(--text-primary);">${apt.userName}</div>
+                        <div style="font-weight: 700; color: var(--text-primary);">${apt.userName || apt.userFullName || "User"}</div>
                         <div style="font-size: 0.75rem; color: var(--text-muted);">${apt.userEmail}</div>
                     </td>
                     <td><span class="category-badge-sm">${apt.category}</span></td>
                     <td style="font-weight: 600;">${apt.service}</td>
                     <td>
-                        <div style="font-weight: 700; color: var(--portal-primary);">${apt.date}</div>
-                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">${apt.time}</div>
+                        <div style="font-weight: 700; color: var(--portal-primary);">${apt.appointmentDate || apt.date || ""}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">${apt.appointmentTime ? parseTimeFromBackend(apt.appointmentTime) : (apt.time || "")}</div>
                     </td>
                     <td><span class="status-badge status-${apt.status}">${apt.status}</span></td>
                     <td>
@@ -195,7 +193,7 @@
         }
 
         function loadCategoryDistribution() {
-            const all = AppointmentManager.getAllAppointmentsGlobal();
+            const all = await AppointmentManager.getMyAppointments();
             const categories = {};
             all.forEach(a => {
                 categories[a.category] = (categories[a.category] || 0) + 1;
@@ -247,10 +245,10 @@
             }
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             if (!Auth.requireAuth()) return;
             const user = Auth.getCurrentUser();
-            if (user && user.role !== 'doctor') {
+            if (user && (user.role !== 'service_provider' && user.backendRole !== 'SERVICE_PROVIDER')) {
                 window.location.href = 'appointer.html';
                 return;
             }
