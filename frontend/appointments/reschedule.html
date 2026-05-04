@@ -72,10 +72,8 @@
         </main>
     </div>
 
-    <script src="../js/validation.js"></script>
-    <script src="../js/auth.js"></script>
-    <script src="../js/appointment.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="../js/app.bundle.js"></script>
     <script>
         const urlParams = new URLSearchParams(window.location.search);
         const appointmentId = parseInt(urlParams.get('id'));
@@ -97,22 +95,15 @@
             selectedTime = time;
         }
         
-        function confirmReschedule() {
+        async function confirmReschedule() {
             const newDate = document.getElementById('newDate').value;
             
-            if (!newDate) {
-                showToast('Please select a new date', 'error');
-                return;
-            }
-            if (!selectedTime) {
-                showToast('Please select a time slot', 'error');
-                return;
-            }
+            if (!newDate) { showToast('Please select a new date', 'error'); return; }
+            if (!selectedTime) { showToast('Please select a time slot', 'error'); return; }
             
-            if (AppointmentManager.rescheduleAppointment(appointmentId, newDate, selectedTime)) {
-                setTimeout(() => {
-                    window.location.href = 'history.html';
-                }, 1500);
+            const ok = await AppointmentManager.rescheduleAppointment(appointmentId, newDate, selectedTime);
+            if (ok) {
+                setTimeout(() => { window.location.href = 'history.html'; }, 1500);
             }
         }
         
@@ -149,10 +140,12 @@
         
         renderTimeSlots();
         
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             if (!Auth.requireAuth()) return;
             
-            appointment = AppointmentManager.getAppointment(appointmentId);
+            // Pre-load appointments cache
+            await AppointmentManager.getMyAppointments();
+            appointment = await AppointmentManager.getAppointment(appointmentId);
             if (!appointment) {
                 showToast('Appointment not found', 'error');
                 setTimeout(() => window.location.href = 'history.html', 1500);
