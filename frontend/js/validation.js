@@ -126,73 +126,35 @@ function showToast(message, type = 'info') {
 
 // Storage Utilities
 const Storage = {
-    save(key, data) {
-        localStorage.setItem(key, JSON.stringify(data));
+    save(key, data)   { localStorage.setItem(key, JSON.stringify(data)); },
+    get(key)          { try { return JSON.parse(localStorage.getItem(key)); } catch { return null; } },
+    remove(key)       { localStorage.removeItem(key); },
+
+    getAppointments() { return this.get('appointments') || []; },
+
+    saveAppointment(apt) {
+        const list = this.getAppointments();
+        apt.id = apt.id || Date.now();
+        apt.createdAt = apt.createdAt || new Date().toISOString();
+        list.unshift(apt);
+        this.save('appointments', list);
+        return apt;
     },
-    
-    get(key) {
-        const data = localStorage.getItem(key);
-        return data ? JSON.parse(data) : null;
-    },
-    
-    remove(key) {
-        localStorage.removeItem(key);
-    },
-    
-    // Save appointment
-    saveAppointment(appointment) {
-        let appointments = this.get('appointments') || [];
-        appointment.id = Date.now();
-        appointment.createdAt = new Date().toISOString();
-        appointments.push(appointment);
-        this.save('appointments', appointments);
-        return appointment;
-    },
-    
-    // Get all appointments
-    getAppointments() {
-        return this.get('appointments') || [];
-    },
-    
-    // Update appointment
-    updateAppointment(id, updates) {
-        let appointments = this.getAppointments();
-        const index = appointments.findIndex(a => a.id === id);
-        if (index !== -1) {
-            appointments[index] = { ...appointments[index], ...updates };
-            this.save('appointments', appointments);
-            return true;
-        }
-        return false;
-    },
-    
-    // Delete appointment
-    deleteAppointment(id) {
-        let appointments = this.getAppointments();
-        appointments = appointments.filter(a => a.id !== id);
-        this.save('appointments', appointments);
+
+    updateAppointment(id, changes) {
+        const list = this.getAppointments();
+        const idx  = list.findIndex(a => String(a.id) === String(id));
+        if (idx === -1) return false;
+        list[idx] = { ...list[idx], ...changes };
+        this.save('appointments', list);
         return true;
     },
-    
-    // Get appointments by category
-    getAppointmentsByCategory(category) {
-        return this.getAppointments().filter(a => a.category === category);
-    },
-    
-    // Get user
-    getCurrentUser() {
-        return this.get('currentUser');
-    },
-    
-    // Save user
-    saveUser(user) {
-        this.save('currentUser', user);
-    },
-    
-    // Logout
-    logout() {
-        this.remove('currentUser');
-        window.location.href = '../login.html';
+
+    deleteAppointment(id) {
+        const before = this.getAppointments();
+        const after  = before.filter(a => String(a.id) !== String(id));
+        this.save('appointments', after);
+        return after.length < before.length;
     }
 };
 

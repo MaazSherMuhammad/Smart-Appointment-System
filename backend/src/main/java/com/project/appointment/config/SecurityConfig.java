@@ -61,28 +61,22 @@ public class SecurityConfig {
             .sessionManagement(session ->
                 session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(auth -> auth
-                // Public endpoints
+                // ── Public (no token needed) ──────────────────────────
                 .requestMatchers("/api/auth/**").permitAll()
                 .requestMatchers("/api/categories/**").permitAll()
-                .requestMatchers("/api/providers/search").permitAll()
                 .requestMatchers("/api/providers/category/**").permitAll()
-                .requestMatchers("/api/providers/type/**").permitAll()
                 .requestMatchers("/api/providers/category-id/**").permitAll()
+                .requestMatchers("/api/providers/search").permitAll()
+                .requestMatchers("/api/providers/{id}").permitAll()
 
-                // User endpoints
-                .requestMatchers("/api/appointments/book").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/appointments/cancel").hasAnyRole("USER", "ADMIN", "SERVICE_PROVIDER")
-                .requestMatchers("/api/appointments/reschedule").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/appointments/history").hasAnyRole("USER", "ADMIN")
-                .requestMatchers("/api/appointments/my").hasAnyRole("USER", "ADMIN")
-
-                // Service provider endpoints
-                .requestMatchers("/api/provider/**").hasAnyRole("SERVICE_PROVIDER", "ADMIN")
-
-                // Admin-only endpoints
+                // ── Admin only ────────────────────────────────────────
                 .requestMatchers("/api/admin/**").hasRole("ADMIN")
 
-                // Everything else requires authentication
+                // ── All authenticated users (any role) ────────────────
+                .requestMatchers("/api/appointments/**").authenticated()
+                .requestMatchers("/api/providers/**").authenticated()
+
+                // ── Everything else: authenticated ────────────────────
                 .anyRequest().authenticated()
             )
             .authenticationProvider(authenticationProvider())
@@ -94,7 +88,6 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
-        // Allow all origins with credentials (Live Server, file://, React dev server, etc.)
         config.setAllowedOriginPatterns(List.of("*"));
         config.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         config.setAllowedHeaders(List.of("*"));

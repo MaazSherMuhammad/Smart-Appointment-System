@@ -1,0 +1,106 @@
+=================================================================
+  SMART APPOINTMENT MANAGEMENT SYSTEM
+  Complete Setup & Run Guide
+=================================================================
+
+STEP 1: SET YOUR MYSQL PASSWORD
+---------------------------------
+Open this file:
+  backend/src/main/resources/application.properties
+
+Find this line:
+  spring.datasource.password=
+
+Set it to your MySQL root password. Common values:
+  spring.datasource.password=          (blank - no password)
+  spring.datasource.password=root
+  spring.datasource.password=1234
+  spring.datasource.password=mubashar
+
+To find/reset your MySQL password:
+  1. Open MySQL Workbench
+  2. Try connecting with root and various passwords
+  OR
+  1. Open Command Prompt as Administrator
+  2. Type: mysql -u root -p
+  3. Enter your password when prompted
+  4. If you've forgotten, reset it via MySQL Installer
+
+STEP 2: START MYSQL
+--------------------
+  Windows: Press Win+R → services.msc → find MySQL80 → Start
+  OR: Open XAMPP → Start MySQL
+
+STEP 3: RUN THE BACKEND
+------------------------
+  Open terminal/PowerShell in the project folder:
+  
+  cd backend
+  mvn spring-boot:run
+
+  Wait for this message:
+  "Started SmartAppointmentApplication in X seconds"
+  "=== Admin: admin@smartappt.com / admin123 ==="
+
+STEP 4: OPEN THE FRONTEND
+--------------------------
+  Option A (Recommended): VS Code Live Server
+    1. Open VS Code
+    2. Open the 'frontend' folder
+    3. Right-click index.html → "Open with Live Server"
+    4. URL: http://127.0.0.1:5500/frontend/index.html
+
+  Option B: Direct browser
+    1. Double-click frontend/index.html
+    2. This opens the home page
+
+STEP 5: LOGIN
+--------------
+  Default Admin:
+    Email:    admin@smartappt.com
+    Password: admin123
+
+  New User: Click "Get Started" on home page to register
+
+=================================================================
+  TROUBLESHOOTING
+=================================================================
+
+ERROR: "Access denied for user 'root' (using password: YES)"
+  → Your MySQL password in application.properties is wrong
+  → Fix: Update spring.datasource.password= with correct password
+
+ERROR: "Cannot connect to backend"
+  → Spring Boot is not running
+  → Fix: cd backend → mvn spring-boot:run
+
+ERROR: "Admin redirects to user dashboard"
+  → Your browser has old cached login data
+  → Fix: Open browser DevTools (F12) → Application → Local Storage
+         → Clear all items → Login again
+
+ERROR: "Access denied" on category management pages  
+  → Same as above - stale browser data
+  → Fix: Logout → Login again (session version guard will auto-clear)
+
+ERROR: Providers list empty in booking pages
+  → No providers seeded yet
+  → Fix: Restart backend (DataInitializer seeds demo providers)
+  → OR: Use MySQL to verify: SELECT * FROM service_providers;
+
+=================================================================
+  IMPORTANT NOTES
+=================================================================
+
+1. The SESSION_VERSION guard in app.bundle.js AUTOMATICALLY clears
+   stale localStorage on first load after update.
+   If you had old login data → simply refresh the page → login again.
+
+2. Admin credentials are RESET on every backend startup.
+   So even if DB has wrong password, restart fixes it.
+
+3. The home page is: frontend/index.html
+   The login page is: frontend/login.html
+   Both work correctly.
+
+=================================================================

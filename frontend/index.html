@@ -3,202 +3,231 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - AppointEase</title>
+    <title>AppointEase – Smart Appointment Management</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
-        .btn-loading { opacity: 0.75; pointer-events: none; cursor: not-allowed; }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: 'Inter', sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; flex-direction: column; }
 
-        /* Backend status dot */
-        #statusDot {
-            display: inline-flex; align-items: center; gap: 6px;
-            font-size: 0.76rem; color: #6B7280; margin-bottom: 12px;
-        }
-        #statusDot .dot {
-            width: 8px; height: 8px; border-radius: 50%;
-            background: #D1D5DB; display: inline-block; flex-shrink: 0;
-        }
-        #statusDot.online  .dot { background: #10B981; }
-        #statusDot.offline .dot { background: #EF4444; }
-        #statusDot.checking .dot { background: #F59E0B; animation: blink 1s infinite; }
-        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+        /* ── NAV ── */
+        nav { display: flex; justify-content: space-between; align-items: center; padding: 20px 60px; position: sticky; top: 0; background: rgba(255,255,255,0.08); backdrop-filter: blur(12px); z-index: 100; }
+        .nav-logo { color: white; font-size: 1.5rem; font-weight: 800; display: flex; align-items: center; gap: 10px; }
+        .nav-logo i { font-size: 1.6rem; }
+        .nav-links { display: flex; gap: 12px; }
+        .btn-nav { padding: 10px 24px; border-radius: 25px; font-weight: 600; font-size: 0.9rem; cursor: pointer; text-decoration: none; transition: all 0.2s; border: none; }
+        .btn-outline { background: transparent; border: 2px solid rgba(255,255,255,0.7); color: white; }
+        .btn-outline:hover { background: rgba(255,255,255,0.15); }
+        .btn-solid { background: white; color: #7C3AED; }
+        .btn-solid:hover { background: #f3f0ff; transform: translateY(-1px); box-shadow: 0 4px 15px rgba(0,0,0,0.15); }
 
-        /* Backend offline banner */
-        #offlineBanner {
-            display: none;
-            background: #fef2f2;
-            border: 1.5px solid #fca5a5;
-            border-radius: 12px;
-            padding: 13px 16px;
-            margin-bottom: 16px;
-            font-size: 0.82rem;
-            color: #991b1b;
-            line-height: 1.6;
-        }
-        #offlineBanner strong { display: block; margin-bottom: 3px; }
-        #offlineBanner code {
-            display: inline-block; background: #fee2e2;
-            padding: 1px 6px; border-radius: 4px;
-            font-family: monospace; color: #7f1d1d;
-        }
+        /* ── HERO ── */
+        .hero { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 60px 20px 40px; }
+        .hero-badge { background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.3); color: white; padding: 6px 18px; border-radius: 20px; font-size: 0.82rem; font-weight: 600; margin-bottom: 28px; display: inline-block; }
+        .hero h1 { font-size: clamp(2.2rem, 6vw, 4rem); font-weight: 800; color: white; line-height: 1.15; margin-bottom: 20px; max-width: 800px; }
+        .hero h1 span { color: #FCD34D; }
+        .hero p { color: rgba(255,255,255,0.85); font-size: 1.1rem; line-height: 1.7; max-width: 560px; margin-bottom: 40px; }
+        .hero-btns { display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; margin-bottom: 60px; }
+        .btn-primary-lg { background: white; color: #7C3AED; padding: 16px 36px; border-radius: 50px; font-size: 1rem; font-weight: 700; text-decoration: none; transition: all 0.2s; box-shadow: 0 4px 20px rgba(0,0,0,0.15); }
+        .btn-primary-lg:hover { transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0,0,0,0.2); }
+        .btn-ghost-lg { background: rgba(255,255,255,0.15); border: 2px solid rgba(255,255,255,0.5); color: white; padding: 14px 34px; border-radius: 50px; font-size: 1rem; font-weight: 600; text-decoration: none; transition: all 0.2s; }
+        .btn-ghost-lg:hover { background: rgba(255,255,255,0.25); }
 
-        /* Credentials hint box */
-        .hint-box {
-            background: rgba(124,58,237,0.06);
-            border: 1px solid rgba(124,58,237,0.18);
-            border-radius: 12px;
-            padding: 12px 16px;
-            margin-bottom: 18px;
-            font-size: 0.82rem;
-            color: #4B5563;
-        }
-        .hint-box strong { color: #7C3AED; }
-        .hint-box code {
-            background: rgba(124,58,237,0.1);
-            padding: 1px 6px; border-radius: 4px;
-            font-family: monospace; font-size: 0.85em;
-        }
+        /* ── STATS ── */
+        .stats { display: flex; gap: 40px; justify-content: center; flex-wrap: wrap; margin-bottom: 60px; }
+        .stat { text-align: center; }
+        .stat-num { font-size: 2rem; font-weight: 800; color: white; }
+        .stat-label { color: rgba(255,255,255,0.7); font-size: 0.85rem; margin-top: 2px; }
+
+        /* ── CATEGORIES SECTION ── */
+        .section { background: white; padding: 70px 40px; }
+        .section-title { text-align: center; font-size: 2rem; font-weight: 800; color: #1F2937; margin-bottom: 10px; }
+        .section-sub { text-align: center; color: #6B7280; margin-bottom: 50px; }
+        .categories-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; max-width: 1100px; margin: 0 auto; }
+        .cat-card { background: #F9FAFB; border: 1.5px solid #E5E7EB; border-radius: 16px; padding: 28px 20px; text-align: center; transition: all 0.2s; cursor: pointer; text-decoration: none; }
+        .cat-card:hover { border-color: #7C3AED; box-shadow: 0 4px 20px rgba(124,58,237,0.12); transform: translateY(-3px); }
+        .cat-icon { font-size: 2.5rem; margin-bottom: 12px; display: block; }
+        .cat-name { font-weight: 700; color: #1F2937; font-size: 1rem; margin-bottom: 6px; }
+        .cat-desc { color: #6B7280; font-size: 0.8rem; line-height: 1.4; }
+
+        /* ── HOW IT WORKS ── */
+        .section-alt { background: linear-gradient(135deg, #f5f3ff, #ede9fe); padding: 70px 40px; }
+        .steps { display: flex; gap: 20px; justify-content: center; flex-wrap: wrap; max-width: 1000px; margin: 0 auto; }
+        .step { background: white; border-radius: 16px; padding: 30px 24px; text-align: center; flex: 1; min-width: 200px; max-width: 240px; box-shadow: 0 2px 15px rgba(0,0,0,0.06); }
+        .step-num { width: 44px; height: 44px; background: linear-gradient(135deg,#7C3AED,#5B21B6); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; margin: 0 auto 16px; font-size: 1.1rem; }
+        .step h3 { font-weight: 700; color: #1F2937; margin-bottom: 8px; }
+        .step p { color: #6B7280; font-size: 0.85rem; line-height: 1.5; }
+
+        /* ── FOOTER ── */
+        footer { background: #1F2937; color: #9CA3AF; text-align: center; padding: 24px; font-size: 0.85rem; }
+        footer strong { color: white; }
+
+        /* ── BACKEND STATUS ── */
+        #backendStatus { position: fixed; bottom: 20px; right: 20px; background: white; border-radius: 12px; padding: 10px 16px; font-size: 0.8rem; box-shadow: 0 4px 20px rgba(0,0,0,0.15); display: flex; align-items: center; gap: 8px; z-index: 999; }
+        #backendStatus .dot { width: 8px; height: 8px; border-radius: 50%; background: #D1D5DB; }
+        #backendStatus.online .dot { background: #10B981; }
+        #backendStatus.offline .dot { background: #EF4444; }
+        #backendStatus.checking .dot { background: #F59E0B; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+
+        /* If already logged in - show quick access */
+        #quickAccess { display: none; background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.3); border-radius: 12px; padding: 14px 24px; margin-bottom: 30px; color: white; font-size: 0.9rem; }
+        #quickAccess a { color: #FCD34D; font-weight: 700; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="auth-container">
-        <div class="auth-card">
-            <div class="auth-header">
-                <div class="icon-wrapper">
-                    <i class="fas fa-calendar-check icon"></i>
-                </div>
-                <h2>Welcome Back! 👋</h2>
-                <p>Login to access your AppointEase account</p>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="nav-logo">
+            <i class="fas fa-calendar-check"></i>
+            AppointEase
+        </div>
+        <div class="nav-links">
+            <a href="login.html" class="btn-nav btn-outline">Sign In</a>
+            <a href="register.html" class="btn-nav btn-solid">Get Started</a>
+        </div>
+    </nav>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div id="quickAccess">
+            👋 Welcome back! <a href="#" id="dashboardLink">Go to your dashboard →</a>
+        </div>
+        <span class="hero-badge">🚀 Smart Appointment Management System</span>
+        <h1>Book Appointments <span>Smarter</span>,<br>Not Harder</h1>
+        <p>Manage healthcare, business, educational, government, personal, and technical appointments — all in one place. Fast, reliable, and effortless.</p>
+        <div class="hero-btns">
+            <a href="register.html" class="btn-primary-lg"><i class="fas fa-user-plus"></i> &nbsp;Create Free Account</a>
+            <a href="login.html" class="btn-ghost-lg"><i class="fas fa-sign-in-alt"></i> &nbsp;Sign In</a>
+        </div>
+        <div class="stats">
+            <div class="stat"><div class="stat-num">6</div><div class="stat-label">Service Categories</div></div>
+            <div class="stat"><div class="stat-num">24/7</div><div class="stat-label">Always Available</div></div>
+            <div class="stat"><div class="stat-num">100%</div><div class="stat-label">Free to Use</div></div>
+        </div>
+    </div>
+
+    <!-- Categories -->
+    <div class="section">
+        <h2 class="section-title">All Service Categories</h2>
+        <p class="section-sub">Choose from 6 categories and book your appointment in minutes</p>
+        <div class="categories-grid">
+            <a href="login.html" class="cat-card">
+                <span class="cat-icon">🏥</span>
+                <div class="cat-name">Healthcare</div>
+                <div class="cat-desc">Doctors, clinics, dental, physiotherapy & more</div>
+            </a>
+            <a href="login.html" class="cat-card">
+                <span class="cat-icon">💼</span>
+                <div class="cat-name">Business</div>
+                <div class="cat-desc">Consultations, meetings & corporate sessions</div>
+            </a>
+            <a href="login.html" class="cat-card">
+                <span class="cat-icon">🎓</span>
+                <div class="cat-name">Educational</div>
+                <div class="cat-desc">Tutors, academic advising & university sessions</div>
+            </a>
+            <a href="login.html" class="cat-card">
+                <span class="cat-icon">🏛️</span>
+                <div class="cat-name">Government</div>
+                <div class="cat-desc">NADRA, passport, visa & official services</div>
+            </a>
+            <a href="login.html" class="cat-card">
+                <span class="cat-icon">💇</span>
+                <div class="cat-name">Personal Services</div>
+                <div class="cat-desc">Salon, spa, fitness trainer & wellness</div>
+            </a>
+            <a href="login.html" class="cat-card">
+                <span class="cat-icon">🔧</span>
+                <div class="cat-name">Technical/Repair</div>
+                <div class="cat-desc">IT support, repairs & technical maintenance</div>
+            </a>
+        </div>
+    </div>
+
+    <!-- How it works -->
+    <div class="section-alt">
+        <h2 class="section-title">How It Works</h2>
+        <p class="section-sub">Get started in 3 simple steps</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <h3>Create Account</h3>
+                <p>Register free in under 30 seconds with your email</p>
             </div>
-
-            <!-- Backend status -->
-            <div id="statusDot" class="checking">
-                <span class="dot"></span>
-                <span id="statusText">Checking backend...</span>
+            <div class="step">
+                <div class="step-num">2</div>
+                <h3>Choose Category</h3>
+                <p>Browse 6 service categories and pick your provider</p>
             </div>
-
-            <!-- Offline warning -->
-            <div id="offlineBanner">
-                <strong>🔴 Backend is not running</strong>
-                Open a terminal in the project folder and run:<br>
-                <code>cd backend</code> then <code>mvn spring-boot:run</code><br>
-                Wait for "Started SmartAppointmentApplication", then refresh.
-            </div>
-
-            <!-- Default credentials hint -->
-            <div class="hint-box">
-                <strong>🔑 Default Admin:</strong>
-                &nbsp; Email: <code>admin@smartappt.com</code>
-                &nbsp; Password: <code>admin123</code><br>
-                <small>New user? <a href="register.html" style="color:#7C3AED;">Create an account →</a></small>
-            </div>
-
-            <form id="loginForm">
-                <div class="form-group input-icon">
-                    <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" class="form-control"
-                           placeholder="Email Address" required autocomplete="email">
-                </div>
-
-                <div class="form-group input-icon">
-                    <i class="fas fa-lock"></i>
-                    <input type="password" id="password" class="form-control"
-                           placeholder="Password" required autocomplete="current-password">
-                    <button type="button" class="toggle-password" onclick="togglePwd()">
-                        <i class="far fa-eye" id="eyeIcon"></i>
-                    </button>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
-                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem;">
-                        <input type="checkbox" id="rememberMe"
-                               style="accent-color:#7C3AED; width:15px; height:15px;">
-                        <span>Remember me</span>
-                    </label>
-                    <a href="#" style="color:#7C3AED; font-size:0.85rem; text-decoration:none;"
-                       onclick="showToast('Contact admin to reset your password','info'); return false;">
-                        Forgot Password?
-                    </a>
-                </div>
-
-                <button type="submit" class="auth-btn" id="loginBtn">
-                    <i class="fas fa-arrow-right"></i> Sign In
-                </button>
-            </form>
-
-            <div class="auth-link">
-                Don't have an account? <a href="register.html">Create Account →</a>
+            <div class="step">
+                <div class="step-num">3</div>
+                <h3>Book & Confirm</h3>
+                <p>Select date, time, and confirm your appointment instantly</p>
             </div>
         </div>
     </div>
 
-    <div id="toastContainer" class="toast-container"></div>
+    <!-- Footer -->
+    <footer>
+        <strong>AppointEase</strong> – Smart Appointment Management System &nbsp;|&nbsp; End Semester Project 2024
+    </footer>
 
-    <script src="js/app.bundle.js"></script>
+    <!-- Backend status badge -->
+    <div id="backendStatus" class="checking">
+        <div class="dot"></div>
+        <span id="backendStatusText">Checking server...</span>
+    </div>
+
     <script>
-        // ── Password toggle ─────────────────────────────────
-        function togglePwd() {
-            const f = document.getElementById('password');
-            const i = document.getElementById('eyeIcon');
-            if (f.type === 'password') { f.type = 'text';     i.className = 'far fa-eye-slash'; }
-            else                       { f.type = 'password'; i.className = 'far fa-eye'; }
-        }
+        // ── Check if already logged in ──────────────────────────────
+        try {
+            const token = localStorage.getItem('authToken');
+            const userRaw = localStorage.getItem('currentUser');
+            if (token && userRaw) {
+                const user = JSON.parse(userRaw);
+                const qa = document.getElementById('quickAccess');
+                const link = document.getElementById('dashboardLink');
+                if (qa && link && user) {
+                    qa.style.display = 'block';
+                    const role = user.backendRole || user.role || '';
+                    if (role === 'ADMIN' || role === 'admin') {
+                        link.href = 'dashboard/admin.html';
+                        link.textContent = 'Go to Admin Dashboard →';
+                    } else if (role === 'SERVICE_PROVIDER' || role === 'service_provider') {
+                        link.href = 'dashboard/doctor.html';
+                        link.textContent = 'Go to Provider Dashboard →';
+                    } else {
+                        link.href = 'dashboard/user.html';
+                        link.textContent = 'Go to your Dashboard →';
+                    }
+                }
+            }
+        } catch(e) {}
 
-        // ── Pre-fill remembered email ────────────────────────
-        const saved = localStorage.getItem('rememberedEmail');
-        if (saved) {
-            document.getElementById('email').value = saved;
-            document.getElementById('rememberMe').checked = true;
-        }
-
-        // ── Backend health check ─────────────────────────────
-        (async function ping() {
-            const dot    = document.getElementById('statusDot');
-            const text   = document.getElementById('statusText');
-            const banner = document.getElementById('offlineBanner');
+        // ── Backend health check ────────────────────────────────────
+        (async function() {
+            const el   = document.getElementById('backendStatus');
+            const text = document.getElementById('backendStatusText');
             try {
                 const ctrl = new AbortController();
                 setTimeout(() => ctrl.abort(), 5000);
-                // Ping login endpoint — any response (even 400) = server is up
-                await fetch('http://localhost:8080/api/auth/login', {
+                const res = await fetch('http://localhost:8080/api/auth/login', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: '{}',
                     signal: ctrl.signal
                 });
-                dot.className = 'online';
-                text.textContent = 'Backend online ✓';
-                banner.style.display = 'none';
+                el.className = 'online';
+                text.textContent = 'Server online ✓';
+                setTimeout(() => { el.style.opacity = '0'; setTimeout(()=>el.remove(),500); }, 3000);
             } catch {
-                dot.className = 'offline';
-                text.textContent = 'Backend offline — start Spring Boot first';
-                banner.style.display = 'block';
+                el.className = 'offline';
+                text.textContent = '⚠ Backend offline';
             }
         })();
-
-        // ── Login form submit ────────────────────────────────
-        document.getElementById('loginForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const email    = document.getElementById('email').value.trim();
-            const password = document.getElementById('password').value;
-            const remember = document.getElementById('rememberMe').checked;
-            const btn      = document.getElementById('loginBtn');
-
-            if (remember) localStorage.setItem('rememberedEmail', email);
-            else          localStorage.removeItem('rememberedEmail');
-
-            btn.classList.add('btn-loading');
-            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
-
-            const ok = await Auth.login(email, password);
-
-            if (!ok) {
-                btn.classList.remove('btn-loading');
-                btn.innerHTML = '<i class="fas fa-arrow-right"></i> Sign In';
-            }
-            // If ok, Auth.login() redirects automatically
-        });
     </script>
 </body>
 </html>

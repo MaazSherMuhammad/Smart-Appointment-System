@@ -162,26 +162,7 @@
             });
         });
 
-        document.getElementById('bookingForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const service = document.getElementById('service').value;
-            const provider = document.getElementById('provider').value;
-            const date = document.getElementById('date').value;
-            const time = document.getElementById('timeSlot').value;
-
-            if (!service || !provider || !date || !time) { showToast('Fields required', 'error'); return; }
-            const appointment = {
-                category: 'Business',
-                service: service,
-                provider: provider,
-                date: date,
-                time: time,
-                notes: document.getElementById('notes').value,
-                status: 'confirmed'
-            };
-            const ok = await AppointmentManager.book(appointment);
-            if (ok) { setTimeout(() => { window.location.href = 'history.html'; }, 1500); }
-        });
+        document.getElementById('bookingForm').addEventListener('submit', (e) => submitBooking(e, 'Business'));
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
     </script>

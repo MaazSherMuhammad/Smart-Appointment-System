@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Personal Services Booking - AppointEase</title>
+    <title>Educational Booking - AppointEase</title>
     <link rel="stylesheet" href="../css/styles.css">
     <link rel="stylesheet" href="../css/dashboard.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
@@ -12,11 +12,11 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/themes/material_blue.css">
 </head>
 <body>
-    <div class="dashboard-wrapper theme-personal">
+    <div class="dashboard-wrapper theme-educational">
         <aside class="sidebar" id="sidebar">
             <div class="sidebar-header">
                 <div class="logo-icon"><i class="fas fa-calendar-check"></i></div>
-                <div><strong>AppointEase</strong><br><small style="color: var(--gray-500);">Personal Portal</small></div>
+                <div><strong>AppointEase</strong><br><small style="color: var(--gray-500);">Educational Portal</small></div>
             </div>
             <nav class="sidebar-nav">
                 <div class="nav-section">Menu</div>
@@ -27,8 +27,8 @@
                 <div class="nav-section">Categories</div>
                 <a href="healthcare.html"><i class="fas fa-hospital-user"></i> Healthcare</a>
                 <a href="business.html"><i class="fas fa-briefcase"></i> Business</a>
-                <a href="educational.html"><i class="fas fa-graduation-cap"></i> Educational</a>
-                <a href="personal.html" class="active"><i class="fas fa-spa"></i> Personal Services</a>
+                <a href="educational.html" class="active"><i class="fas fa-graduation-cap"></i> Educational</a>
+                <a href="personal.html"><i class="fas fa-spa"></i> Personal Services</a>
                 <a href="government.html"><i class="fas fa-landmark"></i> Government</a>
                 <a href="technical.html"><i class="fas fa-tools"></i> Technical/Repair</a>
             </nav>
@@ -48,44 +48,43 @@
             <div class="top-bar category-header">
                 <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
                 <div class="page-title">
-                    <h1>Book Personal Service</h1>
-                    <p>Lifestyle and grooming sessions tailored for you</p>
+                    <h1>Book Academic Session</h1>
+                    <p>Connect with professors and advisors</p>
                 </div>
             </div>
 
             <div class="content-area">
                 <div class="card">
                     <div class="card-header">
-                        <span class="card-title"><i class="fas fa-magic"></i> Lifestyle Details</span>
+                        <span class="card-title"><i class="fas fa-university"></i> Academic Details</span>
                     </div>
                     <div class="card-body">
                         <form id="bookingForm">
-                            <input type="hidden" id="category" value="Personal Services">
+                            <input type="hidden" id="category" value="Educational">
                             
                             <!-- Step 1: Select Service -->
                             <div class="form-group">
-                                <label class="form-label">1. Select Service</label>
+                                <label class="form-label">1. Select Academic Service</label>
                                 <select id="service" class="form-control" required>
                                     <option value="">-- Select Service --</option>
-                                    <option value="Salon/Haircut">Salon/Haircut</option>
-                                    <option value="Spa/Massage">Spa/Massage</option>
-                                    <option value="Gym Trainer Session">Gym Trainer Session</option>
-                                    <option value="Makeup Artist">Makeup Artist</option>
-                                    <option value="Nail Art">Nail Art</option>
-                                    <option value="Personal Stylist">Personal Stylist</option>
+                                    <option value="Teacher Consultation">Teacher Consultation</option>
+                                    <option value="Academic Advising">Academic Advising</option>
+                                    <option value="Viva/Presentation">Viva/Presentation</option>
+                                    <option value="Lab Session">Lab Session</option>
+                                    <option value="FYP Meeting">FYP Meeting</option>
+                                    <option value="Thesis Defense">Thesis Defense</option>
                                 </select>
                             </div>
 
                             <!-- Step 2: Select Provider -->
                             <div class="form-group">
-                                <label class="form-label">2. Select Professional</label>
+                                <label class="form-label">2. Select Faculty Member</label>
                                 <select id="provider" class="form-control" required>
-                                    <option value="">-- Select Professional --</option>
-                                    <option value="Style Studio">Style Studio</option>
-                                    <option value="Luxury Spa">Luxury Spa</option>
-                                    <option value="Fitness First Gym">Fitness First Gym</option>
-                                    <option value="Glamour Makeup">Glamour Makeup</option>
-                                    <option value="Elite Salon">Elite Salon</option>
+                                    <option value="">-- Select Faculty --</option>
+                                    <option value="Prof. John - Computer Science">Prof. John - Computer Science</option>
+                                    <option value="Dr. Maria - Mathematics">Dr. Maria - Mathematics</option>
+                                    <option value="Dr. Ahmed - Engineering">Dr. Ahmed - Engineering</option>
+                                    <option value="Prof. Sarah - Business">Prof. Sarah - Business</option>
                                 </select>
                             </div>
 
@@ -113,12 +112,12 @@
 
                             <!-- Additional Notes -->
                             <div class="form-group">
-                                <label class="form-label">Additional Service Notes</label>
-                                <textarea id="notes" class="form-control" rows="3" placeholder="Describe any specific requests or preferences..."></textarea>
+                                <label class="form-label">Additional Academic Notes</label>
+                                <textarea id="notes" class="form-control" rows="3" placeholder="Describe any specific topics or help needed..."></textarea>
                             </div>
 
                             <button type="submit" class="btn btn-category btn-full" style="margin-top: 20px;">
-                                <i class="fas fa-check-circle"></i> Confirm Personal Booking
+                                <i class="fas fa-check-circle"></i> Confirm Academic Booking
                             </button>
                         </form>
                     </div>
@@ -131,7 +130,7 @@
     <script src="../js/app.bundle.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            initBookingPage('Personal Services');
+            initBookingPage('Educational');
             // Additional init
             const today = new Date().toISOString().split('T')[0];
             
@@ -163,7 +162,7 @@
             });
         });
 
-        document.getElementById('bookingForm').addEventListener('submit', (e) => submitBooking(e, 'Personal Services'));
+        document.getElementById('bookingForm').addEventListener('submit', (e) => submitBooking(e, 'Educational'));
 
         function toggleSidebar() { document.getElementById('sidebar').classList.toggle('open'); }
     </script>

@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Appointments - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-wrapper doctor-portal">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-user-md"></i></div>
+                <div><strong>AppointEase</strong><br><small style="color: rgba(255,255,255,0.6);">Doctor Portal</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Main Menu</div>
+                <a href="doctor.html"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="doctor_category.html" id="allAptsLink"><i class="fas fa-list-ul"></i> All Appointments</a>
+                
+                <div class="nav-section">Categories</div>
+                <a href="doctor_category.html?category=Healthcare" id="link-Healthcare"><i class="fas fa-hospital-user"></i> Healthcare</a>
+                <a href="doctor_category.html?category=Business" id="link-Business"><i class="fas fa-briefcase"></i> Business</a>
+                <a href="doctor_category.html?category=Educational" id="link-Educational"><i class="fas fa-graduation-cap"></i> Educational</a>
+                <a href="doctor_category.html?category=Personal Services" id="link-Personal Services"><i class="fas fa-spa"></i> Personal Services</a>
+                <a href="doctor_category.html?category=Government" id="link-Government"><i class="fas fa-landmark"></i> Government</a>
+                <a href="doctor_category.html?category=Technical/Repair" id="link-Technical/Repair"><i class="fas fa-tools"></i> Technical/Repair</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="Auth.logout()">
+                    <div class="user-avatar user-initials">DR</div>
+                    <div>
+                        <div class="user-name">Dr. Name</div>
+                        <div class="user-role" style="font-size: 0.7rem; color: rgba(255,255,255,0.6);">Medical Professional</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar" id="headerContainer">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1 id="pageTitle">Appointments</h1>
+                    <p id="pageDesc">Viewing all scheduled appointments across the platform.</p>
+                </div>
+                <div class="top-actions">
+                    <div class="search-box" style="position: relative;">
+                        <i class="fas fa-search" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); color: var(--text-muted);"></i>
+                        <input type="text" placeholder="Search appointer or provider..." oninput="filterTable(this.value)" style="padding: 12px 20px 12px 45px; border-radius: var(--radius-full); border: 1px solid var(--border-color); background: var(--bg-primary); width: 300px; font-weight: 500; transition: var(--transition-bounce); outline: none;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <div class="card">
+                    <div class="card-header" style="justify-content: space-between;">
+                        <span class="card-title" id="tableHeader"><i class="fas fa-calendar-alt"></i> Total Bookings</span>
+                        <div class="filter-pills" id="statusFilters">
+                            <button class="badge badge-outline active" onclick="filterByStatus('all')">All</button>
+                            <button class="badge badge-outline" onclick="filterByStatus('active')">Active</button>
+                            <button class="badge badge-outline" onclick="filterByStatus('completed')">Completed</button>
+                            <button class="badge badge-outline" onclick="filterByStatus('cancelled')">Cancelled</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div class="table-responsive">
+                            <table class="data-table">
+                                <thead>
+                                    <tr>
+                                        <th>Appointer Details</th>
+                                        <th>Service/Category</th>
+                                        <th>Provider</th>
+                                        <th>Date & Time</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="appointmentsTableBody">
+                                    <!-- Dynamic content -->
+                                </tbody>
+                            </table>
+                            <div id="noDataMessage" class="empty-state" style="display: none; padding: 60px; text-align: center;">
+                                <i class="fas fa-calendar-times" style="font-size: 4rem; color: var(--gray-200); margin-bottom: 20px;"></i>
+                                <h3>No Appointments Found</h3>
+                                <p>There are no appointments matching your current criteria.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/app.bundle.js"></script>
+    <script>
+        let currentAppointments = [];
+        let activeStatusFilter = 'all';
+        let activeSearchQuery = '';
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function getCategoryFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('category');
+        }
+
+        function loadAppointments() {
+            const category = getCategoryFromURL();
+            const header = document.getElementById('headerContainer');
+            
+            if (category) {
+                currentAppointments = AppointmentManager.getAppointmentsByCategoryGlobal(category);
+                document.getElementById('pageTitle').textContent = category + ' Appointments';
+                document.getElementById('pageDesc').textContent = `Manage and view all bookings for ${category}.`;
+                document.getElementById('tableHeader').innerHTML = `<i class="fas fa-tag"></i> ${category} Bookings`;
+                
+                // Add category theme to header - mapping for robust matching
+                let themeKey = category.toLowerCase().split(' ')[0];
+                if (category.includes('Technical')) themeKey = 'technical';
+                if (category.includes('Personal')) themeKey = 'personal';
+                
+                const themeClass = 'theme-' + themeKey;
+                header.className = 'top-bar category-header ' + themeClass;
+
+                // Highlight active link
+                const activeLink = document.getElementById('link-' + category);
+                if (activeLink) activeLink.classList.add('active');
+            } else {
+                currentAppointments = await AppointmentManager.getMyAppointments();
+                document.getElementById('allAptsLink').classList.add('active');
+                header.className = 'top-bar';
+            }
+
+            renderTable();
+        }
+
+        function renderTable() {
+            const tbody = document.getElementById('appointmentsTableBody');
+            const noData = document.getElementById('noDataMessage');
+
+            let filtered = currentAppointments.filter(apt => {
+                const matchesStatus = activeStatusFilter === 'all' || 
+                                     apt.status === activeStatusFilter || 
+                                     (activeStatusFilter === 'active' && apt.status === 'confirmed');
+                const matchesSearch = apt.userName.toLowerCase().includes(activeSearchQuery.toLowerCase()) || 
+                                     apt.service.toLowerCase().includes(activeSearchQuery.toLowerCase()) ||
+                                     apt.provider.toLowerCase().includes(activeSearchQuery.toLowerCase());
+                return matchesStatus && matchesSearch;
+            });
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = '';
+                noData.style.display = 'block';
+                return;
+            }
+
+            noData.style.display = 'none';
+            tbody.innerHTML = filtered.map(apt => `
+                <tr style="transition: var(--transition-bounce);">
+                    <td>
+                        <div style="font-weight: 700; color: var(--text-primary);">${apt.userName || apt.userFullName || "User"}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted);">${apt.userEmail}</div>
+                    </td>
+                    <td>
+                        <div style="font-weight: 600; font-size: 0.85rem;">${apt.service}</div>
+                        <div class="category-badge-sm" style="margin-top: 4px;">${apt.category}</div>
+                    </td>
+                    <td style="font-weight: 500;">${apt.serviceProviderName || apt.provider || ""}</td>
+                    <td>
+                        <div style="font-weight: 700; color: var(--portal-primary);">${apt.appointmentDate || apt.date || ""}</div>
+                        <div style="font-size: 0.75rem; color: var(--text-muted); font-weight: 600;">${apt.appointmentTime ? parseTimeFromBackend(apt.appointmentTime) : (apt.time || "")}</div>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${apt.status}">
+                            ${apt.status}
+                        </span>
+                    </td>
+                    <td>
+                        <div style="display: flex; gap: 8px;">
+                            ${apt.status === 'active' || apt.status === 'confirmed' ? `
+                                <button class="btn-icon btn-success-soft" onclick="markComplete(${apt.id}, event)" title="Mark as Completed" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: rgba(16, 185, 129, 0.1); color: #10B981; cursor: pointer;">
+                                    <i class="fas fa-check"></i>
+                                </button>
+                                <button class="btn-icon btn-warning-soft" onclick="cancelApt(${apt.id}, event)" title="Cancel Appointment" style="width: 32px; height: 32px; border-radius: 8px; border: none; background: rgba(245, 158, 11, 0.1); color: #F59E0B; cursor: pointer;">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            ` : ''}
+                            <button class="btn-icon" onclick="deleteApt(${apt.id}, event)" title="Delete Record" style="width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--border-color); background: transparent; color: var(--text-muted); cursor: pointer;">
+                                <i class="fas fa-trash-alt"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function filterByStatus(status) {
+            activeStatusFilter = status;
+            document.querySelectorAll('#statusFilters .badge').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase() === status) btn.classList.add('active');
+                if (status === 'all' && btn.textContent === 'All') btn.classList.add('active');
+            });
+            renderTable();
+        }
+
+        function filterTable(query) {
+            activeSearchQuery = query;
+            renderTable();
+        }
+
+        function markComplete(id, e) {
+            if (AppointmentManager.completeAppointment(id)) {
+                updateLocalRecord(id, 'completed');
+            }
+        }
+
+        function cancelApt(id, e) {
+            if (confirm('Cancel this appointment?')) {
+                if (AppointmentManager.cancelAppointment(id)) {
+                    updateLocalRecord(id, 'cancelled');
+                }
+            }
+        }
+
+        function deleteApt(id, e) {
+            if (confirm('Permanently delete this record?')) {
+                if (AppointmentManager.deleteAppointmentGlobal(id)) {
+                    currentAppointments = currentAppointments.filter(a => a.id !== id);
+                    renderTable();
+                }
+            }
+        }
+
+        function updateLocalRecord(id, newStatus) {
+            const apt = currentAppointments.find(a => a.id === id);
+            if (apt) apt.status = newStatus;
+            renderTable();
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.requireAuth()) return;
+            const user = Auth.getCurrentUser();
+            
+            if (user) {
+                document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
+                document.querySelectorAll('.user-initials').forEach(el => {
+                    el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+                });
+            }
+
+            loadAppointments();
+        });
+    </script>
+</body>
+</html>

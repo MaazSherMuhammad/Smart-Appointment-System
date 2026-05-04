@@ -205,8 +205,8 @@
             else if (section === 'services') document.getElementById('servicesSection').style.display = 'block';
         }
 
-        function loadCategoryData() {
-            categoryAppointments = AppointmentManager.getAppointmentsByCategoryGlobal('Educational');
+        async function loadCategoryData() {
+            categoryAppointments = await AppointmentManager.getAppointmentsByCategoryType('EDUCATIONAL');
             updateStats();
             renderAllTables();
             loadServicesProviders();
@@ -301,9 +301,7 @@
         function removeProvider(p) { if(confirm('Remove?')){ const i = Categories.educational.providers.indexOf(p); if(i!==-1){ Categories.educational.providers.splice(i,1); loadServicesProviders(); showToast('Removed','info');} } }
 
         document.addEventListener('DOMContentLoaded', async () => {
-            if (!Auth.requireAuth()) return;
-            const user = Auth.getCurrentUser();
-            if (!user || user.role !== 'educational_admin') { showToast('Access denied', 'error'); setTimeout(() => window.location.href = '../login.html', 1500); return; }
+            if (!Auth.requireAdmin()) return; const user = Auth.getCurrentUser();
             document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
             document.querySelectorAll('.user-initials').forEach(el => el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase());
             loadCategoryData();

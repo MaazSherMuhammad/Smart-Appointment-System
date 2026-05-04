@@ -1,61 +1,159 @@
-# 📅 Smart Appointment System
+# Smart Appointment Management System
+## Integrated Project – Run Instructions
 
-> A full-stack solution designed to streamline the scheduling, management, and tracking of appointments with a focus on security, responsive design, and seamless user experience.
+---
 
-## 🚀 Overview
+## ✅ ISSUES FOUND & FIXED
 
-The **Smart Appointment System** provides a reliable platform for users to book appointments and for administrators to manage schedules efficiently. Built with scalable architecture in mind, it separates the client interface, server logic, and database management into distinct, maintainable modules.
+### Frontend Issues Fixed:
+1. **auth.js** – Was using localStorage only. Now calls `/api/auth/login` & `/api/auth/register`
+2. **appointment.js** – Was using localStorage. Now calls all `/api/appointments/*` endpoints
+3. **category booking pages** – Were saving to localStorage. Now call `/api/appointments/book`
+4. **cancel.html** – Now calls `POST /api/appointments/cancel`
+5. **reschedule.html** – Now calls `PUT /api/appointments/reschedule`
+6. **history.html** – Now loads from `GET /api/appointments/my`
+7. **user dashboard** – Now loads stats from backend
+8. **admin dashboard** – Now loads from `GET /api/admin/dashboard`
+9. **admin category pages** – Now load from `GET /api/admin/appointments/category/{type}`
+10. **login.html** – Removed demo localStorage credentials, uses real JWT login
+11. **register.html** – Removed localStorage, uses real API registration
 
-## ✨ Key Features
+### Backend Issues Fixed:
+1. **ServiceProviderController** – `/api/providers/category/{type}` now accepts CategoryType string (HEALTHCARE etc.)
+2. **SecurityConfig** – Added all required public endpoints, expanded CORS
+3. **CancelAppointmentRequest** – Made `reason` field optional
+4. **AppointmentService** – Handles null cancellation reason gracefully
+5. **application.properties** – Cleaned up, set password to empty (change if needed)
 
-* **Secure Authentication:** Multi-level access control for users and administrators.
-* **Real-Time Scheduling:** Dynamic availability checking and conflict prevention.
-* **Intuitive Dashboard:** Clean, responsive UI for managing upcoming and past appointments.
-* **Data Security:** Implements robust input validation and sanitization to prevent common vulnerabilities (e.g., XSS, SQLi).
+### New Files Added:
+- `frontend/js/config.js` – API_BASE, apiFetch helper, utility functions
+- `frontend/js/booking.js` – Shared booking logic for all category pages
 
-## 📂 Project Structure
+---
 
-This repository is organized into distinct environments to ensure clean separation of concerns:
+## 🚀 HOW TO RUN
 
-* `/frontend` - Contains the client-side user interface and application logic.
-* `/backend` - Contains the server-side API, business logic, and authentication routing.
-* `/database` - Includes schema definitions, migrations, and seed data.
-* `/docs` - Project documentation, API references, and system architecture diagrams.
+### Step 1 – Start MySQL
+```bash
+# Make sure MySQL is running
+# Default: root with empty password on port 3306
+# The app will auto-create the database "smart_appointment_db"
+```
 
-## 🛠️ Tech Stack
+### Step 2 – Configure Database Password
+Edit `backend/src/main/resources/application.properties`:
+```properties
+spring.datasource.password=YOUR_MYSQL_PASSWORD
+```
+*(Leave empty if your MySQL root has no password)*
 
-* **Frontend:** [e.g., React Native / React / HTML & CSS]
-* **Backend:** [e.g., Spring Boot / PHP / Node.js]
-* **Database:** [e.g., MySQL / PostgreSQL / MongoDB]
-
-## 🚦 Getting Started
-
-### Prerequisites
-Before you begin, ensure you have the following installed on your local machine:
-* [e.g., Node.js v18+]
-* [e.g., XAMPP / WAMP / Docker]
-* Git
-
-### Installation
-
-1. **Clone the repository:**
-   ```bash
-   git clone [https://github.com/MaazSherMuhammad/Smart-Appointment-System.git](https://github.com/MaazSherMuhammad/Smart-Appointment-System.git)
-   cd Smart-Appointment-System
-2.	Database Setup:
-o	Navigate to the /database directory.
-o	Import the schema.sql file into your local database server.
-o	Update the database connection string in the backend configuration.
-3.	Backend Setup:
-Bash
+### Step 3 – Run the Spring Boot Backend
+```bash
 cd backend
-# Add your specific backend install/run commands here
-4.	Frontend Setup:
-Bash
-cd frontend
-# Add your specific frontend install/run commands here
-🤝 Contributing
-Contributions make the open-source community an amazing place to learn, inspire, and create. Any contributions you make are greatly appreciated. Please read the CONTRIBUTING.md file for details on our code of conduct and the process for submitting pull requests.
-📝 License
-Distributed under the MIT License. See LICENSE for more information.
+mvn spring-boot:run
+```
+Or from your IDE: Run `SmartAppointmentApplication.java`
+
+The backend starts at: **http://localhost:8080**
+
+On first run, it automatically:
+- Creates the `smart_appointment_db` database
+- Seeds all 6 categories (Healthcare, Business, etc.)
+- Creates admin user: `admin@smartappt.com` / `admin123`
+
+### Step 4 – Open the Frontend
+Use **VS Code Live Server** (recommended):
+- Open `frontend/` folder in VS Code
+- Right-click `index.html` → "Open with Live Server"
+- Frontend runs at: **http://127.0.0.1:5500**
+
+Or open `frontend/login.html` directly in a browser.
+
+---
+
+## 🔑 DEFAULT ACCOUNTS
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | admin@smartappt.com | admin123 |
+| User | Register at register.html | (your choice) |
+| Service Provider | Created by Admin | (set by admin) |
+
+---
+
+## 📋 API ENDPOINTS OVERVIEW
+
+### Auth
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Login → returns JWT token |
+| GET | /api/auth/me | Get current user profile |
+
+### Appointments
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/appointments/book | Book appointment |
+| POST | /api/appointments/cancel | Cancel appointment |
+| PUT | /api/appointments/reschedule | Reschedule appointment |
+| GET | /api/appointments/my | Get my appointments |
+| GET | /api/appointments/history | Get completed history |
+
+### Admin (requires ADMIN role)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/admin/dashboard | Dashboard stats |
+| GET | /api/admin/users | All users |
+| GET | /api/admin/appointments | All appointments |
+| GET | /api/admin/appointments/category/{type} | By category |
+| PATCH | /api/admin/appointments/{id}/confirm | Confirm appointment |
+| PATCH | /api/admin/appointments/{id}/complete | Mark complete |
+
+### Categories & Providers
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| GET | /api/categories | All categories |
+| GET | /api/providers/category/{TYPE} | Providers by category |
+
+---
+
+## 🔄 COMPLETE FLOW
+
+1. **Register** → `POST /api/auth/register` → stored in MySQL
+2. **Login** → `POST /api/auth/login` → returns JWT token
+3. Token stored in `localStorage` → sent as `Authorization: Bearer <token>`
+4. **Book** → Frontend selects provider → `POST /api/appointments/book`
+5. **Cancel** → `POST /api/appointments/cancel` with appointmentId
+6. **Reschedule** → `PUT /api/appointments/reschedule` with new date/time
+7. **History** → `GET /api/appointments/my` loads from database
+
+---
+
+## ⚙️ ADDING SERVICE PROVIDERS (as Admin)
+
+1. First register a user at `/register.html`
+2. Login as admin
+3. Go to Admin Dashboard → Users
+4. Use "Promote" button to make a user a Service Provider
+5. Providers will then appear in category booking pages
+
+---
+
+## 🐛 TROUBLESHOOTING
+
+**"Cannot connect to server"**
+→ Backend not running. Run `mvn spring-boot:run` in the backend folder.
+
+**"CORS error" in browser console**
+→ Make sure you're using Live Server (port 5500), not opening the file directly.
+→ Or add `file://` to CORS origins in `application.properties`.
+
+**"Access denied" on login**
+→ Check credentials. Default admin: `admin@smartappt.com` / `admin123`
+
+**MySQL connection error**
+→ Check your password in `application.properties`. Make sure MySQL service is running.
+
+**Providers list empty in booking pages**
+→ No service providers exist yet. Admin must promote users to SERVICE_PROVIDER role.
 
