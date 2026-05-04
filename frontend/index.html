@@ -3,120 +3,201 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AppointEase - Smart Multi-Category Appointment System</title>
+    <title>Login - AppointEase</title>
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-    <nav class="navbar">
-        <div class="container">
-            <div class="nav-brand">
-                <i class="fas fa-calendar-check"></i>
-                <span>Appoint<span class="highlight">Ease</span></span>
-            </div>
-            <div class="nav-links">
-                <a href="#home">Home</a>
-                <a href="#categories">Categories</a>
-                <a href="#features">Features</a>
-                <a href="login.html" class="btn-login">Login</a>
-                <a href="register.html" class="btn-register">Register</a>
-            </div>
-            <div class="mobile-menu">
-                <i class="fas fa-bars"></i>
-            </div>
-        </div>
-    </nav>
+    <style>
+        .btn-loading { opacity: 0.75; pointer-events: none; cursor: not-allowed; }
 
-    <section class="hero" id="home">
-        <div class="container">
-            <div class="hero-content">
-                <h1>Smart Multi-Category <span class="gradient-text">Appointment System</span></h1>
-                <p>Book appointments across 8+ categories - Healthcare, Business, Education, Personal Services, Government, Events, Repairs, and Virtual Meetings.</p>
-                <div class="hero-buttons">
-                    <a href="register.html" class="btn btn-primary">Get Started <i class="fas fa-arrow-right"></i></a>
-                    <a href="#categories" class="btn btn-outline">View Categories</a>
-                </div>
-            </div>
-        </div>
-    </section>
+        /* Backend status dot */
+        #statusDot {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.76rem; color: #6B7280; margin-bottom: 12px;
+        }
+        #statusDot .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #D1D5DB; display: inline-block; flex-shrink: 0;
+        }
+        #statusDot.online  .dot { background: #10B981; }
+        #statusDot.offline .dot { background: #EF4444; }
+        #statusDot.checking .dot { background: #F59E0B; animation: blink 1s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
 
-    <section class="categories" id="categories">
-        <div class="container">
-            <h2 class="section-title">Appointment <span class="gradient-text">Categories</span></h2>
-            <p class="section-subtitle">Choose from 8 different categories for your scheduling needs</p>
-            
-            <div class="categories-grid" id="categoriesGrid"></div>
-        </div>
-    </section>
-
-    <section class="features" id="features">
-        <div class="container">
-            <h2 class="section-title">Why Choose <span class="gradient-text">AppointEase?</span></h2>
-            <div class="features-grid">
-                <div class="feature-card">
-                    <i class="fas fa-bolt"></i>
-                    <h3>Instant Booking</h3>
-                    <p>Book appointments in under 60 seconds</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-bell"></i>
-                    <h3>Smart Reminders</h3>
-                    <p>Get notified before your appointment</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-chart-line"></i>
-                    <h3>Analytics Dashboard</h3>
-                    <p>Track your appointment history</p>
-                </div>
-                <div class="feature-card">
-                    <i class="fas fa-shield-alt"></i>
-                    <h3>Secure & Safe</h3>
-                    <p>Your data is encrypted and secure</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <footer>
-        <div class="container">
-            <p>&copy; 2026 AppointEase. All rights reserved. Smart Multi-Category Appointment System.</p>
-        </div>
-    </footer>
-
-    <script src="js/validation.js"></script>
-    <script>
-        // Categories Data
-        const categories = [
-            { icon: "🏥", name: "Healthcare", color: "#3B82F6", desc: "Doctor, Dentist, Physiotherapy, Mental Health, Lab Tests", bg: "linear-gradient(135deg, #3B82F6, #1E3A5F)" },
-            { icon: "💼", name: "Business", color: "#10B981", desc: "Client Meetings, Interviews, HR, Project Discussions", bg: "linear-gradient(135deg, #10B981, #0D5C3E)" },
-            { icon: "🎓", name: "Educational", color: "#F59E0B", desc: "Teacher Consultation, Advising, Viva, Lab Sessions", bg: "linear-gradient(135deg, #F59E0B, #B45309)" },
-            { icon: "💇", name: "Personal Services", color: "#EC4899", desc: "Salon, Spa, Gym Trainer, Makeup Artist", bg: "linear-gradient(135deg, #EC4899, #9D174D)" },
-            { icon: "🏢", name: "Government", color: "#6366F1", desc: "Passport, Driving License, NADRA, Visa", bg: "linear-gradient(135deg, #6366F1, #3730A3)" },
-            { icon: "🎉", name: "Event-Based", color: "#F43F5E", desc: "Wedding, Photography, Event Planning", bg: "linear-gradient(135deg, #F43F5E, #9F1239)" },
-            { icon: "🔧", name: "Technical/Repair", color: "#8B5CF6", desc: "Electrician, Plumber, AC Repair, IT Support", bg: "linear-gradient(135deg, #8B5CF6, #5B21B6)" },
-            { icon: "💻", name: "Virtual/Online", color: "#06B6D4", desc: "Zoom Meetings, Online Consultation, Remote Interviews", bg: "linear-gradient(135deg, #06B6D4, #155E75)" }
-        ];
-
-        function renderCategories() {
-            const grid = document.getElementById('categoriesGrid');
-            if (!grid) return;
-            
-            grid.innerHTML = categories.map(cat => `
-                <div class="category-card" data-category="${cat.name}" onclick="location.href='register.html?category=${encodeURIComponent(cat.name)}'">
-                    <div class="category-icon" style="background: ${cat.bg}">${cat.icon}</div>
-                    <h3>${cat.name}</h3>
-                    <p>${cat.desc}</p>
-                    <span class="category-badge">Book Now →</span>
-                </div>
-            `).join('');
+        /* Backend offline banner */
+        #offlineBanner {
+            display: none;
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            border-radius: 12px;
+            padding: 13px 16px;
+            margin-bottom: 16px;
+            font-size: 0.82rem;
+            color: #991b1b;
+            line-height: 1.6;
+        }
+        #offlineBanner strong { display: block; margin-bottom: 3px; }
+        #offlineBanner code {
+            display: inline-block; background: #fee2e2;
+            padding: 1px 6px; border-radius: 4px;
+            font-family: monospace; color: #7f1d1d;
         }
 
-        renderCategories();
+        /* Credentials hint box */
+        .hint-box {
+            background: rgba(124,58,237,0.06);
+            border: 1px solid rgba(124,58,237,0.18);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            font-size: 0.82rem;
+            color: #4B5563;
+        }
+        .hint-box strong { color: #7C3AED; }
+        .hint-box code {
+            background: rgba(124,58,237,0.1);
+            padding: 1px 6px; border-radius: 4px;
+            font-family: monospace; font-size: 0.85em;
+        }
+    </style>
+</head>
+<body>
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-header">
+                <div class="icon-wrapper">
+                    <i class="fas fa-calendar-check icon"></i>
+                </div>
+                <h2>Welcome Back! 👋</h2>
+                <p>Login to access your AppointEase account</p>
+            </div>
 
-        // Mobile menu toggle
-        document.querySelector('.mobile-menu')?.addEventListener('click', function() {
-            document.querySelector('.nav-links').classList.toggle('active');
+            <!-- Backend status -->
+            <div id="statusDot" class="checking">
+                <span class="dot"></span>
+                <span id="statusText">Checking backend...</span>
+            </div>
+
+            <!-- Offline warning -->
+            <div id="offlineBanner">
+                <strong>🔴 Backend is not running</strong>
+                Open a terminal in the project folder and run:<br>
+                <code>cd backend</code> then <code>mvn spring-boot:run</code><br>
+                Wait for "Started SmartAppointmentApplication", then refresh.
+            </div>
+
+            <!-- Default credentials hint -->
+            <div class="hint-box">
+                <strong>🔑 Default Admin:</strong>
+                &nbsp; Email: <code>admin@smartappt.com</code>
+                &nbsp; Password: <code>admin123</code><br>
+                <small>New user? <a href="register.html" style="color:#7C3AED;">Create an account →</a></small>
+            </div>
+
+            <form id="loginForm">
+                <div class="form-group input-icon">
+                    <i class="fas fa-envelope"></i>
+                    <input type="email" id="email" class="form-control"
+                           placeholder="Email Address" required autocomplete="email">
+                </div>
+
+                <div class="form-group input-icon">
+                    <i class="fas fa-lock"></i>
+                    <input type="password" id="password" class="form-control"
+                           placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="toggle-password" onclick="togglePwd()">
+                        <i class="far fa-eye" id="eyeIcon"></i>
+                    </button>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem;">
+                        <input type="checkbox" id="rememberMe"
+                               style="accent-color:#7C3AED; width:15px; height:15px;">
+                        <span>Remember me</span>
+                    </label>
+                    <a href="#" style="color:#7C3AED; font-size:0.85rem; text-decoration:none;"
+                       onclick="showToast('Contact admin to reset your password','info'); return false;">
+                        Forgot Password?
+                    </a>
+                </div>
+
+                <button type="submit" class="auth-btn" id="loginBtn">
+                    <i class="fas fa-arrow-right"></i> Sign In
+                </button>
+            </form>
+
+            <div class="auth-link">
+                Don't have an account? <a href="register.html">Create Account →</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="js/app.bundle.js"></script>
+    <script>
+        // ── Password toggle ─────────────────────────────────
+        function togglePwd() {
+            const f = document.getElementById('password');
+            const i = document.getElementById('eyeIcon');
+            if (f.type === 'password') { f.type = 'text';     i.className = 'far fa-eye-slash'; }
+            else                       { f.type = 'password'; i.className = 'far fa-eye'; }
+        }
+
+        // ── Pre-fill remembered email ────────────────────────
+        const saved = localStorage.getItem('rememberedEmail');
+        if (saved) {
+            document.getElementById('email').value = saved;
+            document.getElementById('rememberMe').checked = true;
+        }
+
+        // ── Backend health check ─────────────────────────────
+        (async function ping() {
+            const dot    = document.getElementById('statusDot');
+            const text   = document.getElementById('statusText');
+            const banner = document.getElementById('offlineBanner');
+            try {
+                const ctrl = new AbortController();
+                setTimeout(() => ctrl.abort(), 5000);
+                // Ping login endpoint — any response (even 400) = server is up
+                await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}',
+                    signal: ctrl.signal
+                });
+                dot.className = 'online';
+                text.textContent = 'Backend online ✓';
+                banner.style.display = 'none';
+            } catch {
+                dot.className = 'offline';
+                text.textContent = 'Backend offline — start Spring Boot first';
+                banner.style.display = 'block';
+            }
+        })();
+
+        // ── Login form submit ────────────────────────────────
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const email    = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const remember = document.getElementById('rememberMe').checked;
+            const btn      = document.getElementById('loginBtn');
+
+            if (remember) localStorage.setItem('rememberedEmail', email);
+            else          localStorage.removeItem('rememberedEmail');
+
+            btn.classList.add('btn-loading');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+            const ok = await Auth.login(email, password);
+
+            if (!ok) {
+                btn.classList.remove('btn-loading');
+                btn.innerHTML = '<i class="fas fa-arrow-right"></i> Sign In';
+            }
+            // If ok, Auth.login() redirects automatically
         });
     </script>
 </body>
