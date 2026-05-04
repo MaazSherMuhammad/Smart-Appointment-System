@@ -7,6 +7,59 @@
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .btn-loading { opacity: 0.75; pointer-events: none; cursor: not-allowed; }
+
+        /* Backend status dot */
+        #statusDot {
+            display: inline-flex; align-items: center; gap: 6px;
+            font-size: 0.76rem; color: #6B7280; margin-bottom: 12px;
+        }
+        #statusDot .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: #D1D5DB; display: inline-block; flex-shrink: 0;
+        }
+        #statusDot.online  .dot { background: #10B981; }
+        #statusDot.offline .dot { background: #EF4444; }
+        #statusDot.checking .dot { background: #F59E0B; animation: blink 1s infinite; }
+        @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+
+        /* Backend offline banner */
+        #offlineBanner {
+            display: none;
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            border-radius: 12px;
+            padding: 13px 16px;
+            margin-bottom: 16px;
+            font-size: 0.82rem;
+            color: #991b1b;
+            line-height: 1.6;
+        }
+        #offlineBanner strong { display: block; margin-bottom: 3px; }
+        #offlineBanner code {
+            display: inline-block; background: #fee2e2;
+            padding: 1px 6px; border-radius: 4px;
+            font-family: monospace; color: #7f1d1d;
+        }
+
+        /* Credentials hint box */
+        .hint-box {
+            background: rgba(124,58,237,0.06);
+            border: 1px solid rgba(124,58,237,0.18);
+            border-radius: 12px;
+            padding: 12px 16px;
+            margin-bottom: 18px;
+            font-size: 0.82rem;
+            color: #4B5563;
+        }
+        .hint-box strong { color: #7C3AED; }
+        .hint-box code {
+            background: rgba(124,58,237,0.1);
+            padding: 1px 6px; border-radius: 4px;
+            font-family: monospace; font-size: 0.85em;
+        }
+    </style>
 </head>
 <body>
     <div class="auth-container">
@@ -18,56 +71,62 @@
                 <h2>Welcome Back! 👋</h2>
                 <p>Login to access your AppointEase account</p>
             </div>
-            
+
+            <!-- Backend status -->
+            <div id="statusDot" class="checking">
+                <span class="dot"></span>
+                <span id="statusText">Checking backend...</span>
+            </div>
+
+            <!-- Offline warning -->
+            <div id="offlineBanner">
+                <strong>🔴 Backend is not running</strong>
+                Open a terminal in the project folder and run:<br>
+                <code>cd backend</code> then <code>mvn spring-boot:run</code><br>
+                Wait for "Started SmartAppointmentApplication", then refresh.
+            </div>
+
+            <!-- Default credentials hint -->
+            <div class="hint-box">
+                <strong>🔑 Default Admin:</strong>
+                &nbsp; Email: <code>admin@smartappt.com</code>
+                &nbsp; Password: <code>admin123</code><br>
+                <small>New user? <a href="register.html" style="color:#7C3AED;">Create an account →</a></small>
+            </div>
+
             <form id="loginForm">
-                <!-- Email Field with Icon -->
                 <div class="form-group input-icon">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                    <input type="email" id="email" class="form-control"
+                           placeholder="Email Address" required autocomplete="email">
                 </div>
-                
-                <!-- Password Field with Toggle -->
+
                 <div class="form-group input-icon">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="password" class="form-control" placeholder="Enter your password" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                        <i class="far fa-eye"></i>
+                    <input type="password" id="password" class="form-control"
+                           placeholder="Password" required autocomplete="current-password">
+                    <button type="button" class="toggle-password" onclick="togglePwd()">
+                        <i class="far fa-eye" id="eyeIcon"></i>
                     </button>
                 </div>
-                
-                <!-- Role Selection -->
-                <div class="form-group">
-                    <label class="form-label">Login As</label>
-                    <select id="role" class="form-control">
-                        <option value="patient">👤 Patient</option>
-                        <option value="doctor">🩺 Doctor/Provider</option>
-                        <option value="admin">⚙️ Administrator</option>
-                    </select>
-                </div>
-                
-                <!-- Remember Me & Forgot Password -->
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                    <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.85rem;">
-                        <input type="checkbox" style="accent-color: var(--primary); width: 16px; height: 16px;">
+
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:22px;">
+                    <label style="display:flex; align-items:center; gap:8px; cursor:pointer; font-size:0.85rem;">
+                        <input type="checkbox" id="rememberMe"
+                               style="accent-color:#7C3AED; width:15px; height:15px;">
                         <span>Remember me</span>
                     </label>
-                    <a href="#" style="color: var(--primary); font-size: 0.85rem; text-decoration: none;" onclick="showToast('Reset link sent!', 'info'); return false;">Forgot Password?</a>
+                    <a href="#" style="color:#7C3AED; font-size:0.85rem; text-decoration:none;"
+                       onclick="showToast('Contact admin to reset your password','info'); return false;">
+                        Forgot Password?
+                    </a>
                 </div>
-                
-                <button type="submit" class="auth-btn">
+
+                <button type="submit" class="auth-btn" id="loginBtn">
                     <i class="fas fa-arrow-right"></i> Sign In
                 </button>
             </form>
-            
-            <div class="auth-divider">or continue with</div>
-            
-            <div class="social-login">
-                <button class="social-btn google" onclick="showToast('Google login coming soon', 'info')">
-                    <i class="fab fa-google"></i> Google
-                </button>
-                
-            </div>
-            
+
             <div class="auth-link">
                 Don't have an account? <a href="register.html">Create Account →</a>
             </div>
@@ -76,81 +135,70 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
+    <script src="js/app.bundle.js"></script>
     <script>
-        // Storage Utilities
-        const Storage = {
-            save(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
-            get(key) { const data = localStorage.getItem(key); return data ? JSON.parse(data) : null; },
-            remove(key) { localStorage.removeItem(key); }
-        };
-
-        function showToast(message, type) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type || 'info'}`;
-            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle';
-            toast.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        // ── Password toggle ─────────────────────────────────
+        function togglePwd() {
+            const f = document.getElementById('password');
+            const i = document.getElementById('eyeIcon');
+            if (f.type === 'password') { f.type = 'text';     i.className = 'far fa-eye-slash'; }
+            else                       { f.type = 'password'; i.className = 'far fa-eye'; }
         }
 
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            const btn = field.nextElementSibling;
-            if (field.type === 'password') {
-                field.type = 'text';
-                btn.innerHTML = '<i class="far fa-eye-slash"></i>';
-            } else {
-                field.type = 'password';
-                btn.innerHTML = '<i class="far fa-eye"></i>';
-            }
+        // ── Pre-fill remembered email ────────────────────────
+        const saved = localStorage.getItem('rememberedEmail');
+        if (saved) {
+            document.getElementById('email').value = saved;
+            document.getElementById('rememberMe').checked = true;
         }
 
-        function login(email, password, role) {
-            const users = Storage.get('users') || [];
-            const credentials = Storage.get('credentials') || {};
-            
-            const user = users.find(u => u.email === email);
-            
-            if (!user) {
-                showToast('User not found. Please register first.', 'error');
-                return false;
+        // ── Backend health check ─────────────────────────────
+        (async function ping() {
+            const dot    = document.getElementById('statusDot');
+            const text   = document.getElementById('statusText');
+            const banner = document.getElementById('offlineBanner');
+            try {
+                const ctrl = new AbortController();
+                setTimeout(() => ctrl.abort(), 5000);
+                // Ping login endpoint — any response (even 400) = server is up
+                await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: '{}',
+                    signal: ctrl.signal
+                });
+                dot.className = 'online';
+                text.textContent = 'Backend online ✓';
+                banner.style.display = 'none';
+            } catch {
+                dot.className = 'offline';
+                text.textContent = 'Backend offline — start Spring Boot first';
+                banner.style.display = 'block';
             }
-            
-            if (credentials[email] !== password) {
-                showToast('Invalid password. Please try again.', 'error');
-                return false;
-            }
-            
-            if (user.role !== role) {
-                showToast(`Invalid role. You are registered as ${user.role}`, 'error');
-                return false;
-            }
-            
-            Storage.save('currentUser', user);
-            showToast(`Welcome back, ${user.fullName}! 🎉`, 'success');
-            
-            setTimeout(() => {
-                if (role === 'patient') {
-                    window.location.href = 'dashboard/patient.html';
-                } else if (role === 'doctor') {
-                    window.location.href = 'dashboard/doctor.html';
-                } else if (role === 'admin') {
-                    window.location.href = 'dashboard/admin.html';
-                }
-            }, 1000);
-            
-            return true;
-        }
+        })();
 
-        document.getElementById('loginForm').addEventListener('submit', (e) => {
+        // ── Login form submit ────────────────────────────────
+        document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const email = document.getElementById('email').value;
+            const email    = document.getElementById('email').value.trim();
             const password = document.getElementById('password').value;
-            const role = document.getElementById('role').value;
-            login(email, password, role);
+            const remember = document.getElementById('rememberMe').checked;
+            const btn      = document.getElementById('loginBtn');
+
+            if (remember) localStorage.setItem('rememberedEmail', email);
+            else          localStorage.removeItem('rememberedEmail');
+
+            btn.classList.add('btn-loading');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
+
+            const ok = await Auth.login(email, password);
+
+            if (!ok) {
+                btn.classList.remove('btn-loading');
+                btn.innerHTML = '<i class="fas fa-arrow-right"></i> Sign In';
+            }
+            // If ok, Auth.login() redirects automatically
         });
     </script>
 </body>
 </html>
-<!-- login page commit -->
