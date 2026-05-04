@@ -7,9 +7,46 @@
     <link rel="stylesheet" href="css/styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .btn-loading { opacity: 0.75; pointer-events: none; cursor: not-allowed; }
+
+        #backendStatusBanner {
+            display: none;
+            align-items: flex-start;
+            gap: 12px;
+            background: #fef2f2;
+            border: 1.5px solid #fca5a5;
+            border-radius: 12px;
+            padding: 14px 16px;
+            margin-bottom: 18px;
+            font-size: 0.83rem;
+            color: #991b1b;
+            line-height: 1.5;
+        }
+        #backendStatusBanner .banner-icon { font-size: 1.3rem; flex-shrink: 0; }
+        #backendStatusBanner code {
+            display: inline-block; background: #fee2e2;
+            padding: 2px 7px; border-radius: 5px;
+            font-family: monospace; font-size: 0.82em; color: #7f1d1d; margin: 2px 0;
+        }
+        #backendStatusBanner strong { display: block; margin-bottom: 4px; }
+
+        #statusDot {
+            display: inline-flex; align-items: center; gap: 5px;
+            font-size: 0.75rem; color: #6B7280; margin-bottom: 10px;
+        }
+        #statusDot .dot { width:8px; height:8px; border-radius:50%; background:#D1D5DB; display:inline-block; }
+        #statusDot.online .dot  { background: #10B981; }
+        #statusDot.offline .dot { background: #EF4444; }
+        #statusDot.checking .dot { background: #F59E0B; animation: pulse 1s infinite; }
+        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.4} }
+    </style>
 </head>
 <body>
     <div class="auth-container">
+        <a href="index.html" class="back-link">
+            <i class="fas fa-arrow-left"></i> Back to Home
+        </a>
         <div class="auth-card">
             <div class="auth-header">
                 <div class="icon-wrapper">
@@ -18,86 +55,72 @@
                 <h2>Create Account 🚀</h2>
                 <p>Join AppointEase for smart appointment scheduling</p>
             </div>
-            
+
+            <div id="statusDot" class="checking">
+                <span class="dot"></span>
+                <span id="statusText">Checking backend...</span>
+            </div>
+
+            <div id="backendStatusBanner">
+                <span class="banner-icon">🔴</span>
+                <div>
+                    <strong>Backend server is not running</strong>
+                    Open a terminal and run:<br>
+                    <code>cd backend</code><br>
+                    <code>mvn spring-boot:run</code><br>
+                    Then refresh this page.
+                </div>
+            </div>
+
             <form id="registerForm">
-                <!-- Full Name -->
                 <div class="form-group input-icon">
                     <i class="fas fa-user"></i>
-                    <input type="text" id="fullName" class="form-control" placeholder="John Doe" required>
+                    <input type="text" id="fullName" class="form-control"
+                           placeholder="Full Name" required autocomplete="name">
                 </div>
-                
-                <!-- Email -->
+
                 <div class="form-group input-icon">
                     <i class="fas fa-envelope"></i>
-                    <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                    <input type="email" id="email" class="form-control"
+                           placeholder="Email Address" required autocomplete="email">
                 </div>
-                
-                <!-- Phone -->
+
                 <div class="form-group input-icon">
                     <i class="fas fa-phone"></i>
-                    <input type="tel" id="phone" class="form-control" placeholder="+92 300 1234567">
+                    <input type="tel" id="phone" class="form-control"
+                           placeholder="Phone Number (optional)" autocomplete="tel">
                 </div>
-                
-                <!-- Password -->
+
                 <div class="form-group input-icon">
                     <i class="fas fa-lock"></i>
-                    <input type="password" id="password" class="form-control" placeholder="Create a strong password (min 8 chars)" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('password')">
-                        <i class="far fa-eye"></i>
+                    <input type="password" id="password" class="form-control"
+                           placeholder="Password (min 8 characters)" required>
+                    <button type="button" class="toggle-password" onclick="togglePwd('password','eye1')">
+                        <i class="far fa-eye" id="eye1"></i>
                     </button>
                 </div>
-                
-                <!-- Confirm Password -->
+
                 <div class="form-group input-icon">
                     <i class="fas fa-shield-alt"></i>
-                    <input type="password" id="confirmPassword" class="form-control" placeholder="Confirm your password" required>
-                    <button type="button" class="toggle-password" onclick="togglePassword('confirmPassword')">
-                        <i class="far fa-eye"></i>
+                    <input type="password" id="confirmPassword" class="form-control"
+                           placeholder="Confirm Password" required>
+                    <button type="button" class="toggle-password" onclick="togglePwd('confirmPassword','eye2')">
+                        <i class="far fa-eye" id="eye2"></i>
                     </button>
                 </div>
-                
-                <!-- Role Selection with Cards -->
-                <div class="form-group">
-                    <label class="form-label">I want to register as</label>
-                    <div class="role-grid">
-                        <div class="role-card selected" onclick="selectRole(this, 'patient')">
-                            <span class="role-icon">👤</span>
-                            <div class="role-name">Patient</div>
-                            <div class="role-desc">Book appointments</div>
-                        </div>
-                        <div class="role-card" onclick="selectRole(this, 'doctor')">
-                            <span class="role-icon">🩺</span>
-                            <div class="role-name">Doctor/Provider</div>
-                            <div class="role-desc">Manage services</div>
-                        </div>
-                    </div>
-                    <input type="hidden" id="role" value="patient">
-                </div>
-                
-                <!-- Terms Agreement -->
-                <div style="margin-bottom: 20px;">
-                    <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; font-size: 0.85rem;">
-                        <input type="checkbox" id="termsCheckbox" style="accent-color: var(--primary); width: 18px; height: 18px;">
-                        <span>I agree to the <a href="#" style="color: var(--primary);">Terms of Service</a> and <a href="#" style="color: var(--primary);">Privacy Policy</a></span>
+
+                <div style="margin-bottom:20px;">
+                    <label style="display:flex; align-items:center; gap:10px; cursor:pointer; font-size:0.85rem;">
+                        <input type="checkbox" id="termsCheckbox" style="accent-color:#7C3AED; width:16px; height:16px;">
+                        <span>I agree to the <a href="#" style="color:#7C3AED;">Terms of Service</a> and <a href="#" style="color:#7C3AED;">Privacy Policy</a></span>
                     </label>
                 </div>
-                
-                <button type="submit" class="auth-btn">
+
+                <button type="submit" class="auth-btn" id="registerBtn">
                     <i class="fas fa-user-plus"></i> Create Account
                 </button>
             </form>
-            
-            <div class="auth-divider">or sign up with</div>
-            
-            <div class="social-login">
-                <button class="social-btn google" onclick="showToast('Google signup coming soon', 'info')">
-                    <i class="fab fa-google"></i> Google
-                </button>
-                <button class="social-btn github" onclick="showToast('GitHub signup coming soon', 'info')">
-                    <i class="fab fa-github"></i> GitHub
-                </button>
-            </div>
-            
+
             <div class="auth-link">
                 Already have an account? <a href="login.html">Sign In →</a>
             </div>
@@ -106,111 +129,64 @@
 
     <div id="toastContainer" class="toast-container"></div>
 
+    <script src="js/app.bundle.js"></script>
     <script>
-        const Storage = {
-            save(key, data) { localStorage.setItem(key, JSON.stringify(data)); },
-            get(key) { const data = localStorage.getItem(key); return data ? JSON.parse(data) : null; }
-        };
-
-        function showToast(message, type) {
-            const container = document.getElementById('toastContainer');
-            const toast = document.createElement('div');
-            toast.className = `toast toast-${type || 'info'}`;
-            const icon = type === 'success' ? 'check-circle' : type === 'error' ? 'times-circle' : 'info-circle';
-            toast.innerHTML = `<i class="fas fa-${icon}"></i><span>${message}</span>`;
-            container.appendChild(toast);
-            setTimeout(() => toast.remove(), 3000);
+        function togglePwd(fieldId, iconId) {
+            const f = document.getElementById(fieldId);
+            const i = document.getElementById(iconId);
+            if (f.type === 'password') { f.type = 'text';     i.className = 'far fa-eye-slash'; }
+            else                       { f.type = 'password'; i.className = 'far fa-eye'; }
         }
 
-        function togglePassword(fieldId) {
-            const field = document.getElementById(fieldId);
-            const btn = field.nextElementSibling;
-            if (field.type === 'password') {
-                field.type = 'text';
-                btn.innerHTML = '<i class="far fa-eye-slash"></i>';
-            } else {
-                field.type = 'password';
-                btn.innerHTML = '<i class="far fa-eye"></i>';
+        // Backend health check
+        (async function checkBackend() {
+            const dot    = document.getElementById('statusDot');
+            const text   = document.getElementById('statusText');
+            const banner = document.getElementById('backendStatusBanner');
+            try {
+                const ctrl = new AbortController();
+                setTimeout(() => ctrl.abort(), 5000);
+                const res = await fetch('http://localhost:8080/api/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({}),
+                    signal: ctrl.signal
+                });
+                dot.className = 'online';
+                text.textContent = 'Backend online ✓';
+                banner.style.display = 'none';
+            } catch {
+                dot.className = 'offline';
+                text.textContent = 'Backend offline – start Spring Boot first';
+                banner.style.display = 'flex';
             }
-        }
+        })();
 
-        function selectRole(el, role) {
-            document.querySelectorAll('.role-card').forEach(card => card.classList.remove('selected'));
-            el.classList.add('selected');
-            document.getElementById('role').value = role;
-        }
-
-        function register(userData) {
-            if (!userData.fullName) {
-                showToast('Please enter your full name', 'error');
-                return false;
-            }
-            
-            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-            if (!emailRegex.test(userData.email)) {
-                showToast('Please enter a valid email address', 'error');
-                return false;
-            }
-            
-            if (userData.password.length < 8) {
-                showToast('Password must be at least 8 characters', 'error');
-                return false;
-            }
-            
-            if (userData.password !== userData.confirmPassword) {
-                showToast('Passwords do not match', 'error');
-                return false;
-            }
-            
-            const termsCheckbox = document.getElementById('termsCheckbox');
-            if (!termsCheckbox.checked) {
-                showToast('Please agree to the Terms of Service', 'error');
-                return false;
-            }
-            
-            let users = Storage.get('users') || [];
-            if (users.find(u => u.email === userData.email)) {
-                showToast('User already exists with this email', 'error');
-                return false;
-            }
-            
-            const newUser = {
-                id: Date.now(),
-                fullName: userData.fullName,
-                email: userData.email,
-                phone: userData.phone,
-                role: userData.role,
-                createdAt: new Date().toISOString()
-            };
-            
-            users.push(newUser);
-            Storage.save('users', users);
-            
-            const credentials = Storage.get('credentials') || {};
-            credentials[userData.email] = userData.password;
-            Storage.save('credentials', credentials);
-            
-            showToast('Account created successfully! 🎉 Please login.', 'success');
-            setTimeout(() => {
-                window.location.href = 'login.html';
-            }, 1500);
-            
-            return true;
-        }
-
-        document.getElementById('registerForm').addEventListener('submit', (e) => {
+        document.getElementById('registerForm').addEventListener('submit', async (e) => {
             e.preventDefault();
-            const userData = {
-                fullName: document.getElementById('fullName').value,
-                email: document.getElementById('email').value,
-                phone: document.getElementById('phone').value,
-                password: document.getElementById('password').value,
-                confirmPassword: document.getElementById('confirmPassword').value,
-                role: document.getElementById('role').value
-            };
-            register(userData);
+
+            if (!document.getElementById('termsCheckbox').checked) {
+                showToast('Please agree to the Terms of Service', 'error');
+                return;
+            }
+
+            const btn = document.getElementById('registerBtn');
+            btn.classList.add('btn-loading');
+            btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+
+            const ok = await Auth.register({
+                fullName:        document.getElementById('fullName').value.trim(),
+                email:           document.getElementById('email').value.trim(),
+                phone:           document.getElementById('phone').value.trim(),
+                password:        document.getElementById('password').value,
+                confirmPassword: document.getElementById('confirmPassword').value
+            });
+
+            if (!ok) {
+                btn.classList.remove('btn-loading');
+                btn.innerHTML = '<i class="fas fa-user-plus"></i> Create Account';
+            }
         });
     </script>
 </body>
 </html>
- <!-- Register-Page -->
