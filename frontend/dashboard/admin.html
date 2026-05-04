@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        .admin-portal {
+            --admin-primary: #7C3AED;
+            --admin-secondary: #5B21B6;
+            --admin-gradient: linear-gradient(135deg, #7C3AED, #C084FC);
+        }
+        .category-management {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin-top: 24px;
+        }
+        .category-admin-card {
+            background: var(--card-bg);
+            border-radius: var(--radius-lg);
+            padding: 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition-bounce);
+            border: 1px solid var(--border-color);
+            position: relative;
+            overflow: hidden;
+        }
+        .category-admin-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-xl);
+        }
+        .category-admin-card .cat-icon {
+            font-size: 2.5rem;
+            margin-bottom: 12px;
+        }
+        .category-admin-card h4 {
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        .category-admin-card p {
+            font-size: 0.8rem;
+            color: var(--text-muted);
+        }
+        .category-admin-card .badge-count {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: var(--primary);
+            color: white;
+            border-radius: var(--radius-full);
+            padding: 2px 10px;
+            font-size: 0.7rem;
+            font-weight: 700;
+        }
+        .users-table-wrapper {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .btn-icon-sm {
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            border: none;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-icon-sm:hover {
+            transform: scale(1.05);
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-wrapper admin-portal">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-crown"></i></div>
+                <div><strong>AppointEase</strong><br><small style="color: rgba(255,255,255,0.6);">Admin Portal</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Main Menu</div>
+                <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="#" onclick="showSection('users')"><i class="fas fa-users"></i> User Management</a>
+                <a href="#" onclick="showSection('categories')"><i class="fas fa-th-large"></i> Category Management</a>
+                <a href="#" onclick="showSection('appointments')"><i class="fas fa-calendar-alt"></i> All Appointments</a>
+                
+                <div class="nav-section">Category Panels</div>
+                <a href="admin_healthcare.html"><i class="fas fa-hospital-user"></i> Healthcare</a>
+                <a href="admin_business.html"><i class="fas fa-briefcase"></i> Business</a>
+                <a href="admin_educational.html"><i class="fas fa-graduation-cap"></i> Educational</a>
+                <a href="admin_personal.html"><i class="fas fa-spa"></i> Personal Services</a>
+                <a href="admin_government.html"><i class="fas fa-landmark"></i> Government</a>
+                <a href="admin_technical.html"><i class="fas fa-tools"></i> Technical/Repair</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="Auth.logout()">
+                    <div class="user-avatar user-initials">AD</div>
+                    <div>
+                        <div class="user-name">Admin User</div>
+                        <div class="user-role" style="font-size: 0.7rem;">Administrator</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1>Admin <span class="gradient-text">Dashboard</span></h1>
+                    <p>Complete system control and analytics</p>
+                </div>
+                <div class="top-actions">
+                    <button class="notif-btn" onclick="showToast('System running smoothly', 'success')">
+                        <i class="far fa-bell"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Welcome Banner -->
+                <div class="welcome-banner" style="background: linear-gradient(135deg, #7C3AED, #5B21B6);">
+                    <div class="banner-content">
+                        <h2>Welcome, <span class="user-name">Admin</span>!</h2>
+                        <p>You have full control over the appointment system. Manage users, categories, and all appointments from here.</p>
+                    </div>
+                    <div class="banner-badge">System Administrator</div>
+                </div>
+
+                <!-- Stats Grid -->
+                <div class="stats-grid" id="statsGrid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(124,58,237,0.1); color: #7C3AED;"><i class="fas fa-users"></i></div>
+                        <div class="stat-value" id="totalUsers">0</div>
+                        <div class="stat-label">Total Users</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-info"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-value" id="totalAppointments">0</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-success"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-value" id="completedAppointments">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-danger"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-value" id="cancelledAppointments">0</div>
+                        <div class="stat-label">Cancelled</div>
+                    </div>
+                </div>
+
+                <!-- Sections Container -->
+                <div id="dashboardSection">
+                    <!-- Category Management Cards -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas fa-th-large"></i> Category Management</span>
+                            <span>Manage each category's appointments</span>
+                        </div>
+                        <div class="card-body">
+                            <div class="category-management" id="categoryCards"></div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Users -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas fa-users"></i> Recent Users</span>
+                            <button class="btn btn-sm btn-outline" onclick="showSection('users')">View All →</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr><th>User</th><th>Email</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="recentUsersBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Recent Appointments -->
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas fa-history"></i> Recent Appointments</span>
+                            <button class="btn btn-sm btn-outline" onclick="showSection('appointments')">View All →</button>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr><th>User</th><th>Category</th><th>Service</th><th>Date</th><th>Status</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="recentAppointmentsBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Users Section (hidden by default) -->
+                <div id="usersSection" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas fa-users"></i> All Users</span>
+                            <div class="filter-pills">
+                                <button class="badge badge-outline active" onclick="filterUsers('all')">All</button>
+                                <button class="badge badge-outline" onclick="filterUsers('appointer')">Appointers</button>
+                                <button class="badge badge-outline" onclick="filterUsers('doctor')">Doctors</button>
+                                <button class="badge badge-outline" onclick="filterUsers('admin')">Admins</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive users-table-wrapper">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr><th>ID</th><th>Full Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Joined</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="allUsersBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Appointments Section (hidden by default) -->
+                <div id="appointmentsSection" style="display: none;">
+                    <div class="card">
+                        <div class="card-header">
+                            <span class="card-title"><i class="fas fa-calendar-alt"></i> All Appointments</span>
+                            <div class="filter-pills">
+                                <button class="badge badge-outline active" onclick="filterAppointments('all')">All</button>
+                                <button class="badge badge-outline" onclick="filterAppointments('active')">Active</button>
+                                <button class="badge badge-outline" onclick="filterAppointments('completed')">Completed</button>
+                                <button class="badge badge-outline" onclick="filterAppointments('cancelled')">Cancelled</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="table-responsive">
+                                <table class="data-table">
+                                    <thead>
+                                        <tr><th>User</th><th>Category</th><th>Service</th><th>Provider</th><th>Date & Time</th><th>Status</th><th>Actions</th></tr>
+                                    </thead>
+                                    <tbody id="allAppointmentsBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/app.bundle.js"></script>
+    <script>
+        let currentUserFilter = 'all';
+        let currentAppointmentFilter = 'all';
+        let allUsers = [];
+        let allAppointments = [];
+
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function showSection(section) {
+            document.getElementById('dashboardSection').style.display = 'none';
+            document.getElementById('usersSection').style.display = 'none';
+            document.getElementById('appointmentsSection').style.display = 'none';
+            
+            if (section === 'dashboard') {
+                document.getElementById('dashboardSection').style.display = 'block';
+            } else if (section === 'users') {
+                document.getElementById('usersSection').style.display = 'block';
+                loadAllUsers();
+            } else if (section === 'appointments') {
+                document.getElementById('appointmentsSection').style.display = 'block';
+                loadAllAppointments();
+            }
+        }
+
+        async function loadAdminDashboard() {
+            try {
+                const data = await AppointmentManager.getAdminDashboard();
+                document.getElementById('totalUsers').textContent = data.totalUsers || 0;
+                document.getElementById('totalAppointments').textContent = data.totalAppointments || 0;
+                document.getElementById('completedAppointments').textContent = data.completedAppointments || 0;
+                document.getElementById('cancelledAppointments').textContent = data.cancelledAppointments || 0;
+                
+                const categoryStats = data.appointmentsByCategory || {};
+                loadCategoryCards(categoryStats);
+            } catch(e) {
+                console.error('Dashboard load error:', e);
+                showToast('Could not load dashboard data', 'error');
+            }
+            loadRecentUsers();
+            loadRecentAppointments();
+        }
+
+        function loadCategoryCards(categoryStats) {
+            const categories = [
+                { name: 'Healthcare', icon: '🏥', color: '#3B82F6', link: 'admin_healthcare.html' },
+                { name: 'Business', icon: '💼', color: '#10B981', link: 'admin_business.html' },
+                { name: 'Educational', icon: '🎓', color: '#F59E0B', link: 'admin_educational.html' },
+                { name: 'Personal Services', icon: '💇', color: '#EC4899', link: 'admin_personal.html' },
+                { name: 'Government', icon: '🏢', color: '#6366F1', link: 'admin_government.html' },
+                { name: 'Technical/Repair', icon: '🔧', color: '#8B5CF6', link: 'admin_technical.html' }
+            ];
+            
+            const container = document.getElementById('categoryCards');
+            container.innerHTML = categories.map(cat => `
+                <div class="category-admin-card" onclick="location.href='${cat.link}'">
+                    <div class="badge-count">${categoryStats[cat.name] || 0}</div>
+                    <div class="cat-icon">${cat.icon}</div>
+                    <h4>${cat.name}</h4>
+                    <p>${categoryStats[cat.name] || 0} appointments</p>
+                    <span style="font-size: 0.7rem; color: ${cat.color};">Manage →</span>
+                </div>
+            `).join('');
+        }
+
+        async function loadRecentUsers() {
+            try {
+                const users = await AppointmentManager.getAllUsers();
+                const recentUsers = users.slice(0, 5);
+                const tbody = document.getElementById('recentUsersBody');
+                if (!tbody) return;
+                tbody.innerHTML = recentUsers.map(user => `
+                    <tr>
+                        <td><strong>${user.fullName}</strong></td>
+                        <td>${user.email}</td>
+                        <td><span class="status-badge status-confirmed">${user.role}</span></td>
+                        <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'N/A'}</td>
+                        <td>
+                            <button class="btn-icon-sm" style="background:rgba(239,68,68,0.1);color:#EF4444;" onclick="toggleUser(${user.id})" title="Toggle Status">
+                                <i class="fas fa-user-slash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) { console.error('Load users error:', e); }
+        }
+
+        async function loadRecentAppointments() {
+            try {
+                const appointments = await AppointmentManager.getAllAppointments();
+                const recentApts = appointments.slice(0, 5);
+                const tbody = document.getElementById('recentAppointmentsBody');
+                if (!tbody) return;
+                tbody.innerHTML = recentApts.map(apt => `
+                    <tr>
+                        <td><strong>${apt.userName || apt.userFullName || 'User'}</strong></td>
+                        <td><span class="category-badge-sm">${apt.categoryName || apt.category || ''}</span></td>
+                        <td>${apt.serviceProviderName || apt.service || 'N/A'}</td>
+                        <td>${apt.appointmentDate || apt.date} ${apt.appointmentTime ? parseTimeFromBackend(apt.appointmentTime) : (apt.time || '')}</td>
+                        <td><span class="status-badge status-${(apt.status||'').toLowerCase()}">${apt.status}</span></td>
+                        <td>
+                            <button class="btn-icon-sm" style="background:rgba(16,185,129,0.1);color:#10B981;" onclick="markComplete(${apt.id})" title="Complete">
+                                <i class="fas fa-check"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `).join('');
+            } catch(e) { console.error('Load appointments error:', e); }
+        }
+
+        async function loadAllUsers() {
+            allUsers = await AppointmentManager.getAllUsers();
+            filterUsers(currentUserFilter);
+        }
+
+        function filterUsers(role) {
+            currentUserFilter = role;
+            document.querySelectorAll('#usersSection .filter-pills .badge').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase() === role || (role === 'all' && btn.textContent === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            let filtered = allUsers;
+            if (role !== 'all') {
+                filtered = allUsers.filter(u => u.role === role);
+            }
+            
+            const tbody = document.getElementById('allUsersBody');
+            tbody.innerHTML = filtered.map(user => `
+                <tr>
+                    <td>${user.id}</td>
+                    <td><strong>${user.fullName}</strong></td>
+                    <td>${user.email}</td>
+                    <td>${user.phone || 'N/A'}</td>
+                    <td>
+                        <select onchange="updateUserRole(${user.id}, this.value)" class="form-control" style="width: 120px; padding: 6px 12px;">
+                            <option value="appointer" ${user.role === 'appointer' ? 'selected' : ''}>Appointer</option>
+                            <option value="doctor" ${user.role === 'doctor' ? 'selected' : ''}>Doctor</option>
+                            <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                        </select>
+                    </td>
+                    <td>${new Date(user.createdAt).toLocaleDateString()}</td>
+                    <td>
+                        <button class="btn-icon-sm" style="background: rgba(239,68,68,0.1); color: #EF4444;" onclick="deleteUser(${user.id})" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function loadAllAppointments() {
+            allAppointments = await AppointmentManager.getAllAppointments();
+            filterAppointments(currentAppointmentFilter);
+        }
+
+        function filterAppointments(status) {
+            currentAppointmentFilter = status;
+            document.querySelectorAll('#appointmentsSection .filter-pills .badge').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.textContent.toLowerCase() === status || (status === 'all' && btn.textContent === 'All')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            let filtered = allAppointments;
+            if (status !== 'all') {
+                filtered = allAppointments.filter(a => a.status === status || (status === 'active' && a.status === 'confirmed'));
+            }
+            
+            const tbody = document.getElementById('allAppointmentsBody');
+            tbody.innerHTML = filtered.map(apt => `
+                <tr>
+                    <td><strong>${apt.userName}</strong><br><small>${apt.userEmail}</small></td>
+                    <td><span class="category-badge-sm">${apt.category}</span></td>
+                    <td>${apt.service}</td>
+                    <td>${apt.provider}</td>
+                    <td>${apt.date}<br><small>${apt.time}</small></td>
+                    <td><span class="status-badge status-${apt.status}">${apt.status}</span></td>
+                    <td>
+                        <button class="btn-icon-sm" style="background: rgba(16,185,129,0.1); color: #10B981;" onclick="markComplete(${apt.id})" title="Complete">
+                            <i class="fas fa-check"></i>
+                        </button>
+                        <button class="btn-icon-sm" style="background: rgba(239,68,68,0.1); color: #EF4444;" onclick="deleteAppointment(${apt.id})" title="Delete">
+                            <i class="fas fa-trash-alt"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        async function markComplete(id) {
+            const ok = await AppointmentManager.completeAppointment(id);
+            if (ok) { loadAllAppointments(); loadAdminDashboard(); }
+        }
+
+        async function toggleUser(userId) {
+            if (confirm('Toggle this user active/inactive status?')) {
+                await AppointmentManager.toggleUserStatus(userId);
+                loadAllUsers();
+            }
+        }
+
+        function updateUserRole(userId, newRole) {
+            if (confirm(`Change user role to ${newRole}?`)) {
+                AppointmentManager.updateUserRole(userId, newRole);
+                loadAllUsers();
+                loadAdminDashboard();
+            }
+        }
+
+        function deleteAppointment(id) {
+            if (confirm('Are you sure you want to delete this appointment?')) {
+                AppointmentManager.deleteAppointmentGlobal(id);
+                loadAllAppointments();
+                loadAdminDashboard();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            if (!Auth.requireAuth()) return;
+            const user = Auth.getCurrentUser();
+            
+            if (!user || (user.role !== 'admin' && user.backendRole !== 'ADMIN')) {
+                showToast('Admin access required', 'error');
+                setTimeout(() => window.location.href = '../login.html', 1500);
+                return;
+            }
+            
+            document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
+            document.querySelectorAll('.user-initials').forEach(el => {
+                el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+            });
+            
+            loadAdminDashboard();
+        });
+    </script>
+</body>
+</html>
