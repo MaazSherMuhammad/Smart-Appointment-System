@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Dashboard - AppointEase</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="../css/dashboard.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <div class="logo-icon"><i class="fas fa-calendar-check"></i></div>
+                <div><strong>AppointEase</strong><br><small style="color: var(--gray-500);">User Portal</small></div>
+            </div>
+            <nav class="sidebar-nav">
+                <div class="nav-section">Main Menu</div>
+                <a href="#" class="active"><i class="fas fa-tachometer-alt"></i> Dashboard</a>
+                <a href="../appointments/book.html"><i class="fas fa-calendar-plus"></i> Book Appointment</a>
+                <a href="../appointments/history.html"><i class="fas fa-history"></i> Appointment History</a>
+                
+                <div class="nav-section">All Categories</div>
+                <a href="../appointments/healthcare.html"><i class="fas fa-hospital-user"></i> Healthcare</a>
+                <a href="../appointments/business.html"><i class="fas fa-briefcase"></i> Business</a>
+                <a href="../appointments/educational.html"><i class="fas fa-graduation-cap"></i> Educational</a>
+                <a href="../appointments/personal.html"><i class="fas fa-spa"></i> Personal Services</a>
+                <a href="../appointments/government.html"><i class="fas fa-landmark"></i> Government</a>
+                <a href="../appointments/technical.html"><i class="fas fa-tools"></i> Technical/Repair</a>
+            </nav>
+            <div class="sidebar-footer">
+                <div class="user-info" onclick="Auth.logout()">
+                    <div class="user-avatar user-initials">JD</div>
+                    <div>
+                        <div class="user-name">John Doe</div>
+                        <div class="user-role" style="font-size: 0.7rem;">User</div>
+                    </div>
+                    <i class="fas fa-sign-out-alt" style="margin-left: auto;"></i>
+                </div>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="top-bar">
+                <button class="menu-toggle" onclick="toggleSidebar()"><i class="fas fa-bars"></i></button>
+                <div class="page-title">
+                    <h1>My Dashboard</h1>
+                    <p>Welcome back! Book appointments across all 6 categories</p>
+                </div>
+                <div class="top-actions">
+                    <button class="notif-btn" onclick="showToast('No new notifications', 'info')">
+                        <i class="far fa-bell"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="content-area">
+                <!-- Stats Grid -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-info"><i class="fas fa-calendar-check"></i></div>
+                        <div class="stat-value" id="upcomingCount">0</div>
+                        <div class="stat-label">Active Bookings</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-success"><i class="fas fa-check-circle"></i></div>
+                        <div class="stat-value" id="completedCount">0</div>
+                        <div class="stat-label">Completed</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(139, 92, 246, 0.1); color: #8B5CF6;"><i class="fas fa-calendar-alt"></i></div>
+                        <div class="stat-value" id="totalCount">0</div>
+                        <div class="stat-label">Total Appointments</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon stat-icon-danger"><i class="fas fa-times-circle"></i></div>
+                        <div class="stat-value" id="cancelledCount">0</div>
+                        <div class="stat-label">Cancelled</div>
+                    </div>
+                </div>
+
+                <!-- Quick Actions - All Categories -->
+                <div class="quick-actions">
+                    <div class="action-card" onclick="location.href='../appointments/healthcare.html'">
+                        <i class="fas fa-hospital-user" style="color: #3B82F6;"></i>
+                        <span>Healthcare</span>
+                    </div>
+                    <div class="action-card" onclick="location.href='../appointments/business.html'">
+                        <i class="fas fa-briefcase" style="color: #10B981;"></i>
+                        <span>Business</span>
+                    </div>
+                    <div class="action-card" onclick="location.href='../appointments/educational.html'">
+                        <i class="fas fa-graduation-cap" style="color: #F59E0B;"></i>
+                        <span>Educational</span>
+                    </div>
+                    <div class="action-card" onclick="location.href='../appointments/personal.html'">
+                        <i class="fas fa-spa" style="color: #EC4899;"></i>
+                        <span>Personal</span>
+                    </div>
+                    <div class="action-card" onclick="location.href='../appointments/government.html'">
+                        <i class="fas fa-landmark" style="color: #6366F1;"></i>
+                        <span>Government</span>
+                    </div>
+                    <div class="action-card" onclick="location.href='../appointments/technical.html'">
+                        <i class="fas fa-tools" style="color: #8B5CF6;"></i>
+                        <span>Technical</span>
+                    </div>
+                </div>
+
+                <!-- Upcoming Appointments -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-calendar-week"></i> Upcoming Appointments</span>
+                        <a href="../appointments/history.html" class="btn btn-sm btn-outline">View All →</a>
+                    </div>
+                    <div class="card-body">
+                        <div id="upcomingAppointments"></div>
+                    </div>
+                </div>
+
+                <!-- Category Distribution -->
+                <div class="card">
+                    <div class="card-header">
+                        <span class="card-title"><i class="fas fa-chart-pie"></i> Appointments by Category</span>
+                    </div>
+                    <div class="card-body" id="categoryStats"></div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script src="../js/app.bundle.js"></script>
+    <script>
+        function toggleSidebar() {
+            document.getElementById('sidebar').classList.toggle('open');
+        }
+
+        function loadDashboardStats() {
+            const stats = AppointmentManager.getStats();
+            document.getElementById('upcomingCount').textContent = stats.upcoming;
+            document.getElementById('completedCount').textContent = stats.completed;
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('cancelledCount').textContent = stats.cancelled;
+        }
+
+        function loadUpcomingAppointments() {
+            const container = document.getElementById('upcomingAppointments');
+            const appointments = AppointmentManager.getUpcomingAppointments();
+            
+            if (appointments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><i class="fas fa-calendar-alt"></i><p>No upcoming appointments</p><a href="../appointments/book.html" class="btn btn-primary btn-sm">Book Now</a></div>';
+                return;
+            }
+            
+            container.innerHTML = appointments.slice(0, 5).map(apt => `
+                <div class="appointment-item">
+                    <div class="appointment-info">
+                        <div class="appointment-time">
+                            <div class="time">${apt.appointmentTime ? parseTimeFromBackend(apt.appointmentTime) : (apt.time || "")}</div>
+                            <div class="date">${formatDate(apt.date)}</div>
+                        </div>
+                        <div class="appointment-details">
+                            <div class="appointer">${apt.serviceProviderName || apt.service || "N/A"}</div>
+                            <div class="doctor">${apt.serviceProviderBusinessName || apt.provider || ""}</div>
+                            <span class="category-badge-sm" style="background: ${getCategoryColor(apt.category)}20; color: ${getCategoryColor(apt.category)}">
+                                ${getCategoryIcon(apt.category)} ${apt.categoryName || apt.category || ""}
+                            </span>
+                        </div>
+                    </div>
+                    <span class="status-badge status-${apt.status === 'active' ? 'confirmed' : apt.status}">${apt.status}</span>
+                    <div class="appointment-actions">
+                        <button class="btn btn-sm btn-outline" onclick="location.href='../appointments/reschedule.html?id=${apt.id}'">Reschedule</button>
+                        <button class="btn btn-sm btn-danger" onclick="cancelAppointment(${apt.id})">Cancel</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function loadCategoryStats() {
+            const container = document.getElementById('categoryStats');
+            const allAppointments = Storage.getAppointments();
+            const categories = ['Healthcare', 'Business', 'Educational', 'Personal Services', 'Government', 'Technical/Repair'];
+            
+            if (allAppointments.length === 0) {
+                container.innerHTML = '<div class="empty-state"><p>No appointments booked yet</p><a href="../appointments/book.html" class="btn btn-primary btn-sm">Book Your First Appointment</a></div>';
+                return;
+            }
+            
+            let html = '<div style="display: grid; gap: 15px;">';
+            categories.forEach(cat => {
+                const catApts = allAppointments.filter(a => (a.categoryName || a.category) === cat);
+                if (catApts.length > 0) {
+                    const percentage = (catApts.length / allAppointments.length) * 100;
+                    html += `
+                        <div>
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                                <span>${getCategoryIcon(cat)} ${cat}</span>
+                                <span style="font-weight: 700;">${catApts.length} appointments</span>
+                            </div>
+                            <div style="height: 8px; background: var(--gray-100); border-radius: 4px; overflow: hidden;">
+                                <div style="height: 100%; width: ${percentage}%; background: ${getCategoryColor(cat)}; border-radius: 4px;"></div>
+                            </div>
+                        </div>
+                    `;
+                }
+            });
+            html += '</div>';
+            container.innerHTML = html;
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        function getCategoryColor(category) {
+            const colors = {
+                'Healthcare': '#3B82F6',
+                'Business': '#10B981',
+                'Educational': '#F59E0B',
+                'Personal Services': '#EC4899',
+                'Government': '#6366F1',
+                'Technical/Repair': '#8B5CF6'
+            };
+            return colors[category] || '#3B82F6';
+        }
+
+        function getCategoryIcon(category) {
+            const icons = {
+                'Healthcare': '🏥',
+                'Business': '💼',
+                'Educational': '🎓',
+                'Personal Services': '💇',
+                'Government': '🏢',
+                'Technical/Repair': '🔧'
+            };
+            return icons[category] || '📅';
+        }
+
+        async function cancelAppointment(id) {
+            if (confirm('Are you sure you want to cancel this appointment?')) {
+                await AppointmentManager.cancelAppointment(id);
+                const appointments = await AppointmentManager.getMyAppointments();
+                const stats = AppointmentManager.computeStats(appointments);
+                document.getElementById('upcomingCount').textContent = stats.upcoming;
+                document.getElementById('completedCount').textContent = stats.completed;
+                document.getElementById('totalCount').textContent = stats.total;
+                document.getElementById('cancelledCount').textContent = stats.cancelled;
+                loadUpcomingAppointments();
+                loadCategoryStats();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            if (!Auth.requireAuth()) return;
+            
+            const user = Auth.getCurrentUser();
+            // Redirect admins
+            if (user && (user.role === 'admin' || user.backendRole === 'ADMIN')) {
+                window.location.href = 'admin.html'; return;
+            }
+            if (user && (user.role === 'service_provider' || user.backendRole === 'SERVICE_PROVIDER')) {
+                window.location.href = 'doctor.html'; return;
+            }
+            
+            if (user) {
+                document.querySelectorAll('.user-name').forEach(el => el.textContent = user.fullName);
+                document.querySelectorAll('.user-initials').forEach(el => {
+                    el.textContent = user.fullName.split(' ').map(n => n[0]).join('').toUpperCase();
+                });
+            }
+            
+            // Load appointments from backend
+            const appointments = await AppointmentManager.getMyAppointments();
+            const stats = AppointmentManager.computeStats(appointments);
+            document.getElementById('upcomingCount').textContent = stats.upcoming;
+            document.getElementById('completedCount').textContent = stats.completed;
+            document.getElementById('totalCount').textContent = stats.total;
+            document.getElementById('cancelledCount').textContent = stats.cancelled;
+            
+            loadUpcomingAppointments();
+            loadCategoryStats();
+        });
+    </script>
+</body>
+</html>
